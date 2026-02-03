@@ -33,19 +33,6 @@
                            placeholder="Enter password" value="password">
                 </div><!--end form-group-->
 
-                <div class="form-group row mt-3">
-                    <div class="col-sm-6">
-                        <div class="form-check form-switch form-switch-success">
-                            <input class="form-check-input" type="checkbox" id="customSwitchSuccess">
-                            <label class="form-check-label" for="customSwitchSuccess">Remember me</label>
-                        </div>
-                    </div><!--end col-->
-                    <div class="col-sm-6 text-end">
-                        <a href="{{ route('second', ['auth', 'recover-pw'])}}" class="text-muted font-13"><i class="dripicons-lock"></i> Forgot
-                            password?</a>
-                    </div><!--end col-->
-                </div><!--end form-group-->
-
                 <div class="form-group mb-0 row">
                     <div class="col-12">
                         <div class="d-grid mt-3">
@@ -55,25 +42,7 @@
                     </div><!--end col-->
                 </div> <!--end form-group-->
             </form><!--end form-->
-            <div class="text-center  mb-2">
-                <p class="text-muted">Don't have an account ? <a href="{{ route('second', ['auth', 'register'])}}" class="text-primary ms-2">Free
-                        Resister</a></p>
-                <h6 class="px-3 d-inline-block">Or Login With</h6>
-            </div>
-            <div class="d-flex justify-content-center">
-                <a href=""
-                   class="d-flex justify-content-center align-items-center thumb-md bg-blue-subtle text-blue rounded-circle me-2">
-                    <i class="fab fa-facebook align-self-center"></i>
-                </a>
-                <a href=""
-                   class="d-flex justify-content-center align-items-center thumb-md bg-info-subtle text-info rounded-circle me-2">
-                    <i class="fab fa-twitter align-self-center"></i>
-                </a>
-                <a href=""
-                   class="d-flex justify-content-center align-items-center thumb-md bg-danger-subtle text-danger rounded-circle">
-                    <i class="fab fa-google align-self-center"></i>
-                </a>
-            </div>
+
         </div><!--end card-body-->
     </div><!--end card-->
 @endsection

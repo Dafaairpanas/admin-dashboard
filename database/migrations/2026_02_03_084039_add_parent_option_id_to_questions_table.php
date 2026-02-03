@@ -4,14 +4,15 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->enum('role', ['admin', 'manager', 'user'])->default('user')->after('email');
+        Schema::table('questions', function (Blueprint $table) {
+            $table->foreignId('parent_option_id')->nullable()->constrained('question_options')->onDelete('set null');
         });
     }
 
@@ -20,8 +21,8 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('role');
+        Schema::table('questions', function (Blueprint $table) {
+            $table->dropForeign(['parent_option_id']);
         });
     }
 };
