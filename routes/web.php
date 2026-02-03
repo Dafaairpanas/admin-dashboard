@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoutingController;
+use App\Http\Controllers\FormController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,16 +17,20 @@ use App\Http\Controllers\RoutingController;
 
 require __DIR__ . '/auth.php';
 
-Route::group(['prefix' => '/', 'middleware' => 'auth'], function () {
+// Form routes untuk user/visitor (tanpa auth)
+Route::get('/', [FormController::class, 'index'])->name('form.index');
+Route::post('/form/submit', [FormController::class, 'submit'])->name('form.submit');
+
+// Admin routes dengan prefix /admin dan middleware auth
+Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::get('', [RoutingController::class, 'index'])->name('root');
     Route::get('{first}/{second}/{third}', [RoutingController::class, 'thirdLevel'])
-        ->where('first', '^(?!\.).*')
+        ->where('first', '^(?!build|\.).*')
         ->name('third');
     Route::get('{first}/{second}', [RoutingController::class, 'secondLevel'])
-        ->where('first', '^(?!\.).*')
+        ->where('first', '^(?!build|\.).*')
         ->name('second');
     Route::get('{any}', [RoutingController::class, 'root'])
-        ->where('any', '^(?!\.).*')
+        ->where('any', '^(?!build|\.).*')
         ->name('any');
 });
-

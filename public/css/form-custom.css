@@ -1,0 +1,1079 @@
+:root {
+    --primary-orange: #FF8300;
+    --dark-brown: #3D2314;
+    --light-gray: #F5F5F5;
+    --border-gray: #E3E3E3;
+}
+
+* {
+    font-family: 'Poppins', sans-serif;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #F8F9FA;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Main container - RESPONSIVE */
+.main-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    flex: 1;
+    background-color: #FFFFFF;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Desktop (larger screens) */
+@media (min-width: 992px) {
+    .main-container {
+        max-width: 800px;
+        padding: 40px 60px;
+        margin-top: 24px;
+        margin-bottom: 24px;
+    }
+}
+
+/* Tablet */
+@media (min-width: 768px) and (max-width: 991px) {
+    .main-container {
+        max-width: 700px;
+        padding: 30px 40px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+    .main-container {
+        padding: 16px;
+        border-radius: 0;
+        box-shadow: none;
+    }
+}
+
+/* Header */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+/* Header Right - wrapper untuk progress dan bendera */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.3s ease;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+}
+
+.logo-img {
+    height: 48px;
+    width: auto;
+    transition: transform 0.3s ease;
+}
+
+@media (max-width: 480px) {
+    .logo-img {
+        height: 36px;
+    }
+
+    .header-right {
+        order: 3;
+        flex: 1 0 100%;
+        justify-content: space-between;
+    }
+}
+
+/* Progress Bar */
+.progress-section {
+    max-width: 400px;
+    min-width: 300px;
+}
+
+@media (max-width: 480px) {
+    .progress-section {
+        order: 3;
+        flex: 1 0 100%;
+        max-width: 100%;
+        margin: 12px 0 0 0;
+    }
+}
+
+.progress-bar-custom {
+    height: 8px;
+    background-color: var(--border-gray);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-orange), #FFB84D);
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progress-text {
+    font-size: 12px;
+    color: #666;
+    text-align: left;
+    margin-top: 4px;
+}
+
+/* Language Selector Dropdown - Custom */
+.language-selector {
+    position: relative;
+    z-index: 9999;
+}
+
+.language-dropdown {
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+}
+
+.selected-lang {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f5f5f5;
+    border: 2px solid var(--border-gray);
+    border-radius: 50%;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.selected-lang:hover {
+    border-color: var(--primary-orange);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.flag-circle {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.chevron {
+    display: none;
+}
+
+.language-options {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    min-width: 200px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.language-dropdown.active .language-options {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.lang-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    position: relative;
+}
+
+.lang-option:hover {
+    background-color: rgba(255, 131, 0, 0.05);
+}
+
+.lang-option.selected {
+    background-color: rgba(255, 131, 0, 0.1);
+}
+
+.lang-option .flag-circle {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    transform: none;
+    border: 2px solid var(--border-gray);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.lang-text {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.lang-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--dark-brown);
+    line-height: 1.2;
+}
+
+.lang-code {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.2;
+}
+
+.checkmark {
+    font-size: 16px;
+    color: var(--primary-orange);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.lang-option.selected .checkmark {
+    opacity: 1;
+}
+
+/* Step Title with animation */
+.step-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--dark-brown);
+    margin-bottom: 24px;
+    animation: fadeInDown 0.5s ease-out;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Form Labels */
+.form-label-custom {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--dark-brown);
+    margin-bottom: 8px;
+    display: block;
+}
+
+.form-label-custom .required {
+    color: var(--primary-orange);
+}
+
+/* Form Inputs with enhanced transitions */
+.form-control-custom {
+    width: 100%;
+    border: 2px solid var(--border-gray);
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 14px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    min-height: 58px;
+}
+
+.form-control-custom:hover {
+    border-color: var(--primary-orange);
+}
+
+.form-control-custom:focus {
+    border-color: var(--primary-orange);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    outline: none !important;
+}
+
+/* Error state untuk input */
+.form-control-custom.error {
+    border-color: #dc3545 !important;
+    background-color: #fff5f5;
+}
+
+.form-control-custom.error:focus {
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Error message styling */
+.error-message {
+    display: none;
+    color: #dc3545;
+    font-size: 13px;
+    margin-top: 6px;
+    font-weight: 500;
+    animation: slideDown 0.3s ease-out;
+}
+
+.error-message.show {
+    display: block;
+}
+
+.error-message i {
+    margin-right: 4px;
+}
+
+/* Custom Radio/Checkbox with enhanced animations */
+.option-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 16px;
+    border: 2px solid var(--border-gray);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fadeIn 0.4s ease-out;
+    animation-fill-mode: both;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.option-item:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.option-item:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.option-item:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.option-item:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+.option-item:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+.option-item:nth-child(6) {
+    animation-delay: 0.3s;
+}
+
+.option-item:hover {
+    border-color: var(--primary-orange);
+    background-color: rgba(245, 166, 35, 0.03);
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.option-item:active {
+    transform: translateX(2px) scale(0.99);
+}
+
+.option-item.selected {
+    border-color: var(--primary-orange);
+    background-color: rgba(245, 166, 35, 0.08);
+}
+
+.option-radio,
+.option-checkbox {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    border: 2px solid var(--border-gray);
+    border-radius: 50%;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.option-checkbox {
+    border-radius: 6px;
+}
+
+.option-item:hover .option-radio,
+.option-item:hover .option-checkbox {
+    border-color: var(--primary-orange);
+}
+
+.option-item.selected .option-radio,
+.option-item.selected .option-checkbox {
+    background-color: var(--primary-orange);
+    border-color: var(--primary-orange);
+    transform: scale(1.1);
+}
+
+.option-item.selected .option-radio::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+    animation: popIn 0.3s ease-out;
+}
+
+.option-item.selected .option-checkbox::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    color: white;
+    font-size: 12px;
+    animation: popIn 0.3s ease-out;
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.option-label {
+    font-size: 14px;
+    color: var(--dark-brown);
+    line-height: 1.5;
+}
+
+.option-sublabel {
+    font-size: 12px;
+    color: #666;
+}
+
+/* Conditional Fields with animation */
+.conditional-fields {
+    display: none;
+    padding-left: 36px;
+    margin-top: 12px;
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.conditional-fields.show {
+    display: block;
+    animation: slideDown 0.3s ease-out forwards;
+}
+
+/* Pastikan label di conditional fields punya styling yang sama */
+.conditional-fields .form-label-custom {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--dark-brown);
+    margin-bottom: 8px;
+}
+
+/* Styling khusus untuk input "Lainnya" agar terlihat menyatu */
+.lainnya-input-container {
+    display: none;
+    padding-left: 36px;
+    /* Indentasi sejajar dengan conditional fields lainnya */
+    margin-top: 8px;
+    /* Jarak kecil dari checkbox di atasnya */
+    margin-bottom: 12px;
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.lainnya-input-container.show {
+    display: block;
+    animation: slideDown 0.3s ease-out forwards;
+}
+
+/* Pastikan semua input punya tinggi yang konsisten */
+.conditional-fields .form-control-custom,
+.lainnya-input-container .form-control-custom {
+    min-height: 58px;
+    height: auto;
+    /* Biarkan auto untuk textarea jika ada */
+    padding: 16px;
+    /* Pastikan padding konsisten */
+}
+
+/* Khusus untuk input text biasa, paksa height 58px */
+.conditional-fields input[type="text"].form-control-custom,
+.lainnya-input-container input[type="text"].form-control-custom {
+    height: 58px;
+}
+
+@keyframes slideDown {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Card Options (for Furniture Type) */
+.furniture-cards {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.furniture-card {
+    flex: 1;
+    min-width: 200px;
+    padding: 20px;
+    border: 2px solid var(--border-gray);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Simple Checkbox (Consent) */
+.simple-checkbox-item {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    margin-bottom: 8px;
+    padding: 4px 0;
+}
+
+.simple-checkbox-item .option-checkbox {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--border-gray);
+    border-radius: 6px;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    background: white;
+    flex-shrink: 0;
+}
+
+.simple-checkbox-item:hover .option-checkbox {
+    border-color: var(--primary-orange);
+}
+
+@media (max-width: 480px) {
+    .furniture-card {
+        min-width: 100%;
+    }
+}
+
+.furniture-card:hover {
+    border-color: var(--primary-orange);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(245, 166, 35, 0.15);
+}
+
+.furniture-card:active {
+    transform: translateY(-2px);
+}
+
+.furniture-card.selected {
+    border-color: var(--primary-orange);
+    background-color: rgba(245, 166, 35, 0.08);
+}
+
+.furniture-card .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--dark-brown);
+    margin-bottom: 4px;
+}
+
+.furniture-card .card-desc {
+    font-size: 12px;
+    color: #666;
+}
+
+/* Buttons with simple fade effects */
+.btn-primary-custom {
+    background: var(--primary-orange);
+    border: none;
+    border-radius: 10px;
+    padding: 14px 48px;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-primary-custom:hover {
+    background: #E07500;
+    color: white;
+    opacity: 0.9;
+}
+
+.btn-primary-custom:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px rgba(61, 35, 20, 0.2);
+}
+
+.btn-secondary-custom {
+    background: linear-gradient(135deg, #888, #999);
+    border: none;
+    border-radius: 10px;
+    padding: 14px 48px;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary-custom:hover {
+    background: linear-gradient(135deg, #777, #888);
+    color: white;
+    opacity: 0.9;
+}
+
+.btn-secondary-custom:active {
+    opacity: 1;
+}
+
+.buttons-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 32px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+    .buttons-container {
+        flex-direction: column;
+    }
+
+    .btn-primary-custom,
+    .btn-secondary-custom {
+        width: 100%;
+        padding: 16px;
+    }
+}
+
+/* Footer */
+.footer {
+    background: #000000;
+    color: white;
+    padding: 24px 20px;
+    text-align: center;
+    margin-top: auto;
+}
+
+.footer-contact {
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.footer-credit {
+    font-size: 12px;
+    color: #ccc;
+}
+
+/* Step visibility with animation */
+.form-step {
+    display: none;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.form-step.active {
+    display: block;
+}
+
+/* Lainnya input with animation */
+.lainnya-input {
+    margin-top: 8px;
+    display: none;
+    opacity: 0;
+}
+
+.lainnya-input.show {
+    display: block;
+    animation: slideDown 0.3s ease-out forwards;
+}
+
+/* Success message */
+.success-message {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    border: 1px solid #28a745;
+    color: #155724;
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    animation: fadeIn 0.5s ease-out;
+    display: flex;
+    align-items: center;
+}
+
+/* Section spacing */
+.form-section {
+    margin-bottom: 28px;
+}
+
+/* Ripple effect */
+.ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 50%;
+    left: 50%;
+    pointer-events: none;
+    background-image: radial-gradient(circle, rgba(245, 166, 35, 0.3) 10%, transparent 10.01%);
+    background-repeat: no-repeat;
+    background-position: 50%;
+    transform: translate(-50%, -50%) scale(10);
+    opacity: 0;
+    transition: transform 0.5s, opacity 1s;
+}
+
+.ripple:active::after {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+    transition: 0s;
+}
+
+/* ============================================
+   MOBILE RESPONSIVE STYLES
+   ============================================ */
+
+/* Mobile - Small (max 480px) */
+@media (max-width: 480px) {
+
+    /* Header adjustments */
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    .header-right {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 8px;
+    }
+
+    .logo-img {
+        height: 32px;
+    }
+
+    /* Progress bar mobile */
+    .progress-section {
+        flex: 1;
+        min-width: unset;
+        max-width: calc(100% - 56px);
+    }
+
+    .progress-text {
+        font-size: 11px;
+    }
+
+    /* Language selector mobile */
+    .selected-lang {
+        width: 36px;
+        height: 36px;
+    }
+
+    .language-options {
+        min-width: 180px;
+        right: auto;
+        left: 0;
+    }
+
+    .lang-option {
+        padding: 10px 12px;
+        gap: 10px;
+    }
+
+    .lang-option .flag-circle {
+        width: 28px;
+        height: 28px;
+        transform: none;
+    }
+
+    .lang-name {
+        font-size: 13px;
+    }
+
+    .lang-code {
+        font-size: 11px;
+    }
+
+    /* Step title mobile */
+    .step-title {
+        font-size: 22px;
+        margin-bottom: 16px;
+    }
+
+    /* Form labels mobile */
+    .form-label-custom {
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    /* Form inputs mobile */
+    .form-control-custom {
+        padding: 12px 14px;
+        font-size: 14px;
+        min-height: 50px;
+        border-radius: 10px;
+    }
+
+    /* Option items mobile */
+    .option-item {
+        padding: 12px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+    }
+
+    .option-item:hover {
+        transform: none;
+    }
+
+    .option-radio,
+    .option-checkbox {
+        width: 22px;
+        height: 22px;
+        min-width: 22px;
+        margin-right: 10px;
+    }
+
+    .option-label {
+        font-size: 13px;
+        line-height: 1.4;
+    }
+
+    .option-sublabel {
+        font-size: 11px;
+    }
+
+    /* Conditional fields mobile */
+    .conditional-fields {
+        padding-left: 16px;
+        margin-top: 10px;
+    }
+
+    .lainnya-input-container {
+        padding-left: 16px;
+    }
+
+    .conditional-fields .form-control-custom,
+    .lainnya-input-container .form-control-custom {
+        min-height: 50px;
+        padding: 12px 14px;
+    }
+
+    .conditional-fields input[type="text"].form-control-custom,
+    .lainnya-input-container input[type="text"].form-control-custom {
+        height: 50px;
+    }
+
+    /* Furniture cards mobile */
+    .furniture-cards {
+        gap: 10px;
+    }
+
+    .furniture-card {
+        padding: 14px;
+        border-radius: 12px;
+    }
+
+    .furniture-card .card-title {
+        font-size: 14px;
+    }
+
+    .furniture-card .card-desc {
+        font-size: 11px;
+    }
+
+    .furniture-card:hover {
+        transform: none;
+    }
+
+    /* Buttons mobile */
+    .buttons-container {
+        margin-top: 24px;
+        gap: 10px;
+    }
+
+    .btn-primary-custom,
+    .btn-secondary-custom {
+        padding: 14px 16px;
+        font-size: 15px;
+        border-radius: 10px;
+    }
+
+    /* Form section mobile */
+    .form-section {
+        margin-bottom: 20px;
+    }
+
+    /* Footer mobile */
+    .footer {
+        padding: 20px 16px;
+    }
+
+    .footer-contact {
+        font-size: 12px;
+    }
+
+    .footer-credit {
+        font-size: 11px;
+    }
+
+    /* Error message mobile */
+    .error-message {
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+    /* Simple checkbox mobile */
+    .simple-checkbox-item {
+        padding: 2px 0;
+    }
+
+    .simple-checkbox-item .option-checkbox {
+        width: 22px;
+        height: 22px;
+        margin-right: 10px;
+    }
+
+    .simple-checkbox-item .option-label {
+        font-size: 12px;
+    }
+}
+
+/* Mobile - Medium (481px - 767px) */
+@media (min-width: 481px) and (max-width: 767px) {
+    .header {
+        margin-bottom: 24px;
+    }
+
+    .logo-img {
+        height: 40px;
+    }
+
+    .step-title {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    .form-control-custom {
+        padding: 14px;
+        min-height: 54px;
+    }
+
+    .option-item {
+        padding: 14px;
+    }
+
+    .option-label {
+        font-size: 14px;
+    }
+
+    .conditional-fields {
+        padding-left: 24px;
+    }
+
+    .lainnya-input-container {
+        padding-left: 24px;
+    }
+
+    .furniture-card {
+        padding: 16px;
+    }
+
+    .buttons-container {
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+
+    .btn-primary-custom,
+    .btn-secondary-custom {
+        width: auto;
+        padding: 14px 32px;
+    }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+    .option-item:hover {
+        transform: none;
+        background-color: transparent;
+    }
+
+    .option-item.selected:hover {
+        background-color: rgba(245, 166, 35, 0.08);
+    }
+
+    .furniture-card:hover {
+        transform: none;
+    }
+
+    .furniture-card.selected:hover {
+        background-color: rgba(245, 166, 35, 0.08);
+    }
+
+    .selected-lang:hover {
+        border-color: var(--border-gray);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-primary-custom:hover,
+    .btn-secondary-custom:hover {
+        opacity: 1;
+    }
+}
