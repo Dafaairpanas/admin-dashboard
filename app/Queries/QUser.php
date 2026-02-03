@@ -6,6 +6,8 @@ use App\Models\User as Model;
 use App\Helper as AppHelper;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 
 class QUser
 {
@@ -16,22 +18,22 @@ class QUser
                 $query->where('name', 'like', '%' . $params->search_value . '%');
             }
         })
-        ->whereNull('deleted_at')
-        ->orderBy('name', 'asc')
-        ->paginate($params->show_data ?? 15);
+            ->whereNull('deleted_at')
+            ->orderBy('name', 'asc')
+            ->paginate($params->show_data ?? 15);
 
         return [
             'items' => $data->getCollection()
                 ->transform(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'name' => $item->name,
-                    'role_name' => $item->refRole->name,
-                    'role_badge' => $item->refRole->badge_color,
-                    'email' => $item->email,
-                    'created_at' => Carbon::parse($item->created_at)->format('d-m-Y H:i:s'),
-                ];
-            }),
+                    return [
+                        'id' => $item->id,
+                        'name' => $item->name,
+                        'role_name' => $item->refRole ? $item->refRole->name : 'No Role',
+                        'role_badge' => $item->refRole ? $item->refRole->badge_color : '#6c757d',
+                        'email' => $item->email,
+                        'created_at' => Carbon::parse($item->created_at)->format('d-m-Y H:i:s'),
+                    ];
+                }),
             'attributes' => [
                 'total' => $data->total(),
                 'page' => $data->currentPage(),
@@ -65,7 +67,7 @@ class QUser
             $insert = new Model;
             $insert->name = $params['name'];
             $insert->email = $params['email'];
-            $insert->password = Hash::make(AppHelper::PASS_DEFAULT);
+            $insert->password = isset($params['password']) ? Hash::make($params['password']) : Hash::make(AppHelper::PASS_DEFAULT);
             $insert->created_at = Carbon::now();
             $insert->updated_at = null;
             $insert->save();
@@ -109,6 +111,9 @@ class QUser
             $update = Model::find($id);
             $update->name = $params['name'];
             $update->email = $params['email'];
+            if (!empty($params['password'])) {
+                $update->password = Hash::make($params['password']);
+            }
             $update->updated_at = Carbon::now();
             $update->save();
 

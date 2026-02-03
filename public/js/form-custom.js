@@ -207,6 +207,16 @@ const translations = {
     }
 };
 
+// Merge Dynamic Translations if available
+if (window.dynamicTranslations) {
+    if (window.dynamicTranslations.id) {
+        Object.assign(translations.id, window.dynamicTranslations.id);
+    }
+    if (window.dynamicTranslations.en) {
+        Object.assign(translations.en, window.dynamicTranslations.en);
+    }
+}
+
 function t(key) {
     return translations[currentLang][key] || key;
 }

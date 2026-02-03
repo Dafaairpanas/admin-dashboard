@@ -48,6 +48,17 @@ class User extends Authenticatable
 
     public function refRoleUser()
     {
-        return $this->hasMany(RoleUser::class, 'user_id', 'id');
+        return $this->hasOne(RoleUser::class, 'user_id', 'id');
     }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id');
+    }
+
+    public function getRefRoleAttribute()
+    {
+        return $this->roles->first();
+    }
+
 }

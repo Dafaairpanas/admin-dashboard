@@ -19,4 +19,9 @@ class QuestionOption extends Model
     {
         return $this->belongsTo(Question::class, 'question_id', 'id');
     }
+
+    public function refQuestionOptionTranslations()
+    {
+        return $this->hasMany(QuestionOptionTranslation::class, 'question_option_id', 'id');
+    }
 }

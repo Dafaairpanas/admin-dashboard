@@ -186,146 +186,79 @@
                 </div>
             </div>
 
-            <!-- Step 2 -->
+            <!-- Step 2 (Dynamic Questions) -->
             <div class="form-step" id="step2">
                 <h1 class="step-title" data-i18n="step2">Step 2</h1>
 
-                <!-- Kebutuhan Furniture -->
-                <div class="form-section">
-                    <label class="form-label-custom" data-i18n="kebutuhan_furniture">Kebutuhan Furniture</label>
-                    <div class="furniture-cards">
-                        <div class="furniture-card" data-value="indoor">
-                            <div class="d-flex align-items-start">
-                                <div class="option-checkbox me-3"></div>
-                                <div>
-                                    <div class="card-title" data-i18n="indoor_furniture">Indoor Furniture</div>
-                                    <div class="card-desc" data-i18n="indoor_desc">Living Room, Bedroom, Dining, dll
-                                    </div>
+                @if(isset($questions))
+                    @foreach($questions as $q)
+                        <div class="form-section">
+                            <label class="form-label-custom" data-i18n="q_{{ $q->id }}">
+                                {{ $q->refQuestionTranslations->first()->question_text ?? 'Question' }}
+                            </label>
+
+                            {{-- Render based on Type --}}
+                            @if($q->refTypeQuestion->code == 'checkbox_card')
+                                <div class="furniture-cards">
+                                    @foreach($q->refQuestionOptions as $opt)
+                                        <div class="furniture-card"
+                                            data-value="{{ $opt->refQuestionOptionTranslations->first()->option_text ?? $opt->id }}">
+                                            <div class="d-flex align-items-start">
+                                                <div class="option-checkbox me-3"></div>
+                                                <div>
+                                                    <div class="card-title" data-i18n="opt_{{ $opt->id }}">
+                                                        {{ $opt->refQuestionOptionTranslations->first()->option_text ?? '' }}
+                                                    </div>
+                                                    {{-- <div class="card-desc" data-i18n="opt_desc_{{ $opt->id }}">Description here if
+                                                        needed</div> --}}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
                                 </div>
-                            </div>
-                        </div>
-                        <div class="furniture-card" data-value="outdoor">
-                            <div class="d-flex align-items-start">
-                                <div class="option-checkbox me-3"></div>
-                                <div>
-                                    <div class="card-title" data-i18n="outdoor_furniture">Outdoor Furniture</div>
-                                    <div class="card-desc" data-i18n="outdoor_desc">Poolside, Garden, Terrace, Patio
+
+                            @elseif($q->refTypeQuestion->code == 'textarea')
+                                <textarea name="{{ $q->key ?? 'question_' . $q->id }}"
+                                    class="form-control form-control-custom auto-resize" rows="3" data-i18n="q_ph_{{ $q->id }}"
+                                    placeholder="..."></textarea>
+
+                            @elseif($q->refTypeQuestion->code == 'text')
+                                <input type="text" name="{{ $q->key ?? 'question_' . $q->id }}"
+                                    class="form-control form-control-custom">
+
+                            @elseif($q->refTypeQuestion->code == 'radio' || $q->refTypeQuestion->code == 'checkbox')
+                                {{-- Assuming Radio implies Max 1 in logic or strictly Radio --}}
+                                @php
+                                    $isRadio = $q->refTypeQuestion->code == 'radio';
+                                    $dataAttr = $isRadio ? 'data-checkbox' : 'data-checkbox'; // Using checkbox logic for everything so array works? 
+                                    // Actually form-custom.js handles max=1 as radio behavior for checkboxes too.
+                                    // So we use data-checkbox with max=1 for Radio type.
+                                    $max = $isRadio ? 1 : 2; // Default limit 2 for checkbox? Or custom?
+                                    if ($q->key == 'estimasi_budget' || $q->key == 'estimasi_waktu' || $q->key == 'estimasi_jumlah')
+                                        $max = 1;
+                                    if ($q->key == 'preferensi_brand')
+                                        $max = 2; 
+                                @endphp
+
+                                @foreach($q->refQuestionOptions as $opt)
+                                    <div class="option-item" data-checkbox="{{ $q->key ?? 'question_' . $q->id }}"
+                                        data-value="{{ $opt->refQuestionOptionTranslations->first()->option_text ?? $opt->id }}"
+                                        data-max="{{ $max }}">
+                                        <div class="option-checkbox"></div>
+                                        <span class="option-label" data-i18n="opt_{{ $opt->id }}">
+                                            {{ $opt->refQuestionOptionTranslations->first()->option_text ?? '' }}
+                                        </span>
                                     </div>
-                                </div>
-                            </div>
+                                @endforeach
+                            @endif
                         </div>
-                    </div>
-                </div>
+                    @endforeach
+                @else
+                    <p>No questions found.</p>
+                @endif
 
-                <!-- Detail Kebutuhan -->
-                <div class="form-section">
-                    <label class="form-label-custom" data-i18n="detail_kebutuhan">Detail Kebutuhan Furniture</label>
-                    <textarea name="detail_kebutuhan" class="form-control form-control-custom auto-resize" rows="3"
-                        placeholder="Contoh: Sofa 3-seater, Meja Makan 8 kursi, Daybed untuk Villa, dll"
-                        data-i18n="detail_placeholder"></textarea>
-                </div>
 
-                <!-- Estimasi Budget -->
-                <div class="form-section">
-                    <label class="form-label-custom" data-i18n="estimasi_budget">Estimasi Budget</label>
-
-                    <div class="option-item" data-checkbox="estimasi_budget" data-value="<10jt" data-max="1">
-                        <div class="option-checkbox"></div>
-                        <span class="option-label" data-i18n="budget_10jt">&lt; Rp10 juta</span>
-                    </div>
-
-                    <div class="option-item" data-checkbox="estimasi_budget" data-value="10-50jt" data-max="1">
-                        <div class="option-checkbox"></div>
-                        <span class="option-label" data-i18n="budget_10_50jt">Rp10 - 50 juta</span>
-                    </div>
-
-                    <div class="option-item" data-checkbox="estimasi_budget" data-value="50-200jt" data-max="1">
-                        <div class="option-checkbox"></div>
-                        <span class="option-label" data-i18n="budget_50_200jt">Rp50 - 200 juta</span>
-                    </div>
-
-                    <div class="option-item" data-checkbox="estimasi_budget" data-value=">200jt" data-max="1">
-                        <div class="option-checkbox"></div>
-                        <span class="option-label" data-i18n="budget_200jt">&gt; Rp200 juta</span>
-                    </div>
-                </div>
-
-                <!-- Estimasi Waktu -->
-                <div class="form-section">
-                    <label class="form-label-custom" data-i18n="estimasi_waktu">Estimasi Waktu proyek /
-                        Pembelian</label>
-
-                    <div class="option-item" data-checkbox="estimasi_waktu" data-value="segera" data-max="1">
-                        <div class="option-checkbox"></div>
-                        <span class="option-label" data-i18n="waktu_segera">Segera (1 - 3 bulan ke depan)</span>
-                    </div>
-
-                    <div class="option-item" data-checkbox="estimasi_waktu" data-value="menengah" data-max="1">
-                        <div class="option-checkbox"></div>
-                        <span class="option-label" data-i18n="waktu_menengah">Jangka Menengah (3 - 6 bulan ke
-                            depan)</span>
-                    </div>
-
-                    <div class="option-item" data-checkbox="estimasi_waktu" data-value="melihat" data-max="1">
-                        <div class="option-checkbox"></div>
-                        <span class="option-label" data-i18n="waktu_melihat">Hanya melihat-lihat / Mencari
-                            Referensi</span>
-                    </div>
-                </div>
-
-                <!-- Estimasi Jumlah -->
-                <div class="form-section">
-                    <label class="form-label-custom" data-i18n="estimasi_jumlah">Estimasi Jumlah / Item</label>
-
-                    <div class="option-item" data-checkbox="estimasi_jumlah" data-value="1set" data-max="1">
-                        <div class="option-checkbox"></div>
-                        <span class="option-label" data-i18n="jumlah_1set">1 Set</span>
-                    </div>
-
-                    <div class="option-item" data-checkbox="estimasi_jumlah" data-value="<5pcs" data-max="1">
-                        <div class="option-checkbox"></div>
-                        <span class="option-label" data-i18n="jumlah_5pcs">&lt; 5 Pcs</span>
-                    </div>
-
-                    <div class="option-item" data-checkbox="estimasi_jumlah" data-value="5-20pcs" data-max="1">
-                        <div class="option-checkbox"></div>
-                        <span class="option-label" data-i18n="jumlah_5_20pcs">5 - 20 Pcs</span>
-                    </div>
-
-                    <div class="option-item" data-checkbox="estimasi_jumlah" data-value=">20pcs" data-max="1">
-                        <div class="option-checkbox"></div>
-                        <span class="option-label" data-i18n="jumlah_20pcs">&gt; 20 Pcs</span>
-                    </div>
-                </div>
-
-                <!-- Preferensi Brand -->
-                <div class="form-section">
-                    <label class="form-label-custom"><span data-i18n="preferensi_brand">Apa yang paling Anda cari dari
-                            sebuah brand furniture?</span><br><small data-i18n="preferensi_max">(Pilih maks.
-                            2):</small></label>
-
-                    <div class="option-item" data-checkbox="preferensi_brand" data-value="desain" data-max="2">
-                        <div class="option-checkbox"></div>
-                        <span class="option-label" data-i18n="pref_desain">Desain yang unik & Estetik</span>
-                    </div>
-
-                    <div class="option-item" data-checkbox="preferensi_brand" data-value="durability" data-max="2">
-                        <div class="option-checkbox"></div>
-                        <span class="option-label" data-i18n="pref_durability">Daya tahan material (Durability)</span>
-                    </div>
-
-                    <div class="option-item" data-checkbox="preferensi_brand" data-value="harga" data-max="2">
-                        <div class="option-checkbox"></div>
-                        <span class="option-label" data-i18n="pref_harga">Harga yang kompetitif</span>
-                    </div>
-
-                    <div class="option-item" data-checkbox="preferensi_brand" data-value="custom" data-max="2">
-                        <div class="option-checkbox"></div>
-                        <span class="option-label" data-i18n="pref_custom">Kemudahan kustomisasi (Custom-made)</span>
-                    </div>
-                </div>
-
-                <!-- Consent -->
+                <!-- Consent (Static) -->
                 <div class="form-section">
                     <div class="simple-checkbox-item" id="consentCheckbox" onclick="toggleConsent()">
                         <div class="option-checkbox" id="consentBox"></div>
@@ -363,6 +296,32 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Dynamic Translations Injection -->
+    <script>
+        window.dynamicTranslations = {
+            id: {},
+            en: {}
+        };
+
+        @if(isset($questions))
+            @foreach($questions as $q)
+                // Question Text
+                @foreach($q->refQuestionTranslations as $trans)
+                    window.dynamicTranslations['{{ $trans->language_code }}']['q_{{ $q->id }}'] = "{!! addslashes($trans->question_text) !!}";
+                    // Add placeholder if needed
+                    window.dynamicTranslations['{{ $trans->language_code }}']['q_ph_{{ $q->id }}'] = "{!! addslashes($trans->question_text) !!} ...";
+                @endforeach
+
+                // Option Texts
+                @foreach($q->refQuestionOptions as $opt)
+                    @foreach($opt->refQuestionOptionTranslations as $optTrans)
+                        window.dynamicTranslations['{{ $optTrans->language_code }}']['opt_{{ $opt->id }}'] = "{!! addslashes($optTrans->option_text) !!}";
+                    @endforeach
+                @endforeach
+            @endforeach
+        @endif
+    </script>
 
     <!-- Custom JS -->
     <script src="{{ asset('js/form-custom.js') }}"></script>

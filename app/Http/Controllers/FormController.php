@@ -11,7 +11,19 @@ class FormController extends Controller
      */
     public function index()
     {
-        return view('form.index');
+        $questions = \App\Models\Question::with([
+            'refQuestionTranslations',
+            'refTypeQuestion',
+            'refQuestionOptions' => function ($q) {
+                $q->orderBy('urutan');
+            },
+            'refQuestionOptions.refQuestionOptionTranslations'
+        ])
+            ->where('is_active', 1)
+            ->orderBy('urutan')
+            ->get();
+
+        return view('form.index', compact('questions'));
     }
 
     /**
@@ -38,8 +50,30 @@ class FormController extends Controller
             'consent' => 'required|accepted',
         ]);
 
-        // For now, just return success message
-        // TODO: Save to database or send email
-        return redirect()->route('form.index')->with('success', 'Terima kasih! Data Anda telah terkirim.');
+        // Create Submission
+        try {
+            \App\Models\Submission::create([
+                'survey_id' => 1, // Default or dynamic
+                'full_name' => $validated['nama_lengkap'],
+                'phone_number' => $validated['whatsapp'],
+                'email' => $validated['email'],
+                'kategori_pengunjung' => $validated['kategori_pengunjung'],
+                'nama_perusahaan' => $validated['nama_perusahaan'] ?? null,
+                'posisi_jabatan' => $validated['posisi_jabatan'] ?? null,
+                'jenis_bisnis' => json_encode($validated['jenis_bisnis']), // Save as JSON
+                'jenis_bisnis_lainnya' => $validated['jenis_bisnis_lainnya'] ?? null,
+                'kebutuhan_furniture' => json_encode($validated['kebutuhan_furniture']), // Save as JSON
+                'detail_kebutuhan' => $validated['detail_kebutuhan'] ?? null,
+                'estimasi_budget' => $validated['estimasi_budget'],
+                'estimasi_waktu' => $validated['estimasi_waktu'] ?? null,
+                'estimasi_jumlah' => isset($validated['estimasi_jumlah']) ? json_encode($validated['estimasi_jumlah']) : null,
+                'preferensi_brand' => isset($validated['preferensi_brand']) ? json_encode($validated['preferensi_brand']) : null,
+                'consent' => 1,
+            ]);
+
+            return redirect()->route('form.index')->with('success', 'Terima kasih! Data Anda telah terkirim.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.')->withInput();
+        }
     }
 }

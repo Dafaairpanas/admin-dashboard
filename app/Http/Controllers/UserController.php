@@ -3,13 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Queries\QUser;
 
 class UserController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
 
     public function index(Request $request)
     {
@@ -19,9 +16,42 @@ class UserController extends Controller
         ];
 
         $data = QUser::getAllData($params);
+        $roles = \App\Models\Role::all();
         return view('pages.user.index', [
             'data' => $data['items'],
             'attributes' => $data['attributes'],
+            'params' => $params,
+            'roles' => $roles
         ]);
+    }
+
+    public function store(Request $request)
+    {
+        try {
+            QUser::saveData($request->all());
+            return redirect()->back()->with('success', 'User created successfully');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        try {
+            QUser::updateData($request->all(), $id);
+            return redirect()->back()->with('success', 'User updated successfully');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            QUser::deleteData($id);
+            return redirect()->back()->with('success', 'User deleted successfully');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
     }
 }

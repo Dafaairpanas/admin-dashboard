@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoutingController;
 use App\Http\Controllers\FormController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,6 +24,12 @@ Route::post('/form/submit', [FormController::class, 'submit'])->name('form.submi
 
 // Admin routes dengan prefix /admin dan middleware auth
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
+    Route::resource('users', UserController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('roles', \App\Http\Controllers\RoleController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('languages', \App\Http\Controllers\LanguageController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('questions', \App\Http\Controllers\QuestionController::class);
+    Route::resource('submissions', \App\Http\Controllers\AdminSubmissionController::class)->only(['index', 'destroy']);
+
     Route::get('', [RoutingController::class, 'index'])->name('root');
     Route::get('{first}/{second}/{third}', [RoutingController::class, 'thirdLevel'])
         ->where('first', '^(?!build|\.).*')

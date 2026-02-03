@@ -12,14 +12,13 @@
             <h4 class="page-title">Users</h4>
             <div class="">
                 <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item"><a href="#">Approx</a>
-                    </li><!--end nav-item-->
+                    <li class="breadcrumb-item"><a href="#">Management</a></li>
                     <li class="breadcrumb-item active">Users</li>
                 </ol>
             </div>
-        </div><!--end page-title-box-->
-    </div><!--end col-->
-</div><!--end row-->
+        </div>
+    </div>
+</div>
 
 <div class="row">
     <div class="col-12">
@@ -27,344 +26,225 @@
             <div class="card-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h4 class="card-title">Users Details</h4>
-                    </div><!--end col-->
+                        <h4 class="card-title">Users List</h4>
+                    </div>
                     <div class="col-auto">
-                        <button class="btn bg-primary text-white" data-bs-toggle="modal" data-bs-target="#addUser"><i class="fas fa-plus me-1"></i> Add User</button>
-                    </div><!--end col-->
-                </div><!--end row-->
-            </div><!--end card-header-->
+                        <button class="btn bg-primary text-white" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                            <i class="fas fa-plus me-1"></i> Add User
+                        </button>
+                    </div>
+                </div>
+                
+                <form action="{{ route('any', 'users') }}" method="GET" class="mt-3">
+                    <div class="input-group">
+                        <input type="text" name="search_value" class="form-control" placeholder="Search by name..." value="{{ $params->search_value ?? '' }}">
+                        <button class="btn btn-outline-secondary" type="submit">Search</button>
+                    </div>
+                </form>
+            </div>
+            
             <div class="card-body pt-0">
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
                 <div class="table-responsive">
-                    <table class="table mb-0" id="datatable_1">
+                    <table class="table mb-0">
                         <thead class="table-light">
                             <tr>
                                 <th>Name</th>
                                 <th>Email</th>
-                                <th>Mobile No</th>
-                                <th>Registered On</th>
-                                <th>Status</th>
+                                <th>Role</th>
+                                <th>Created At</th>
                                 <th class="text-end">Action</th>
                             </tr>
                         </thead>
                         <tbody>
+                            @forelse($data as $user)
                             <tr>
-                                <td class="d-flex align-items-center">
+                                <td>
                                     <div class="d-flex align-items-center">
-                                        <img src="/images/users/avatar-1.jpg" class="me-2 thumb-md align-self-center rounded" alt="...">
-                                        <div class="flex-grow-1 text-truncate">
-                                            <h6 class="m-0">Unity Pugh</h6>
-                                            <p class="fs-12 text-muted mb-0">USA</p>
-                                        </div><!--end media body-->
+                                        <i class="fas fa-user-circle fs-3 me-2 text-muted"></i>
+                                        <div>
+                                            <h6 class="m-0">{{ $user['name'] }}</h6>
+                                        </div>
                                     </div>
                                 </td>
-                                <td><a href="#" class="text-body text-decoration-underline">dummy@gmail.com</a></td>
-                                <td>+1 234 567 890</td>
-                                <td>22 August 2024</td>
-                                <td><span class="badge rounded text-success bg-success-subtle">Active</span></td>
+                                <td>{{ $user['email'] }}</td>
+                                <td>
+                                    @if($user['role_name'])
+                                        <span class="badge rounded text-white" style="background-color: {{ $user['role_badge'] ?? '#6c757d' }}">
+                                            {{ $user['role_name'] }}
+                                        </span>
+                                    @else
+                                        <span class="badge bg-secondary">No Role</span>
+                                    @endif
+                                </td>
+                                <td>{{ $user['created_at'] }}</td>
                                 <td class="text-end">
-                                    <a href="#"><i class="las la-pen text-secondary fs-18"></i></a>
-                                    <a href="#"><i class="las la-trash-alt text-secondary fs-18"></i></a>
+                                    <button class="btn btn-sm btn-soft-info btn-edit" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editUserModal"
+                                            data-id="{{ $user['id'] }}"
+                                            data-name="{{ $user['name'] }}"
+                                            data-email="{{ $user['email'] }}"
+                                            {{-- Role ID logic might need improvement to get ID from QUser transform --}}
+                                            {{-- Assuming we only have name/badge from QUser, we might need role_id --}}
+                                    >
+                                        <i class="las la-pen fs-18"></i>
+                                    </button>
+                                    
+                                    <form action="{{ route('users.destroy', $user['id']) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-soft-danger">
+                                            <i class="las la-trash-alt fs-18"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
+                            @empty
                             <tr>
-                                <td class="d-flex align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <img src="/images/users/avatar-1.jpg" class="me-2 thumb-md align-self-center rounded" alt="...">
-                                        <div class="flex-grow-1 text-truncate">
-                                            <h6 class="m-0">Scott Holland</h6>
-                                            <p class="fs-12 text-muted mb-0">USA</p>
-                                        </div><!--end media body-->
-                                    </div>
-                                </td>
-                                <td><a href="#" class="text-body text-decoration-underline">extradummy@gmail.com</a></td>
-                                <td>+1 234 567 890</td>
-                                <td>20 August 2024</td>
-                                <td><span class="badge rounded text-success bg-success-subtle">Active</span></td>
-                                <td class="text-end">
-                                    <a href="#"><i class="las la-pen text-secondary fs-18"></i></a>
-                                    <a href="#"><i class="las la-trash-alt text-secondary fs-18"></i></a>
-                                </td>
+                                <td colspan="5" class="text-center">No users found.</td>
                             </tr>
-                            <tr>
-                                <td class="d-flex align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <img src="/images/users/avatar-2.jpg" class="me-2 thumb-md align-self-center rounded" alt="...">
-                                        <div class="flex-grow-1 text-truncate">
-                                            <h6 class="m-0">Karen Savage</h6>
-                                            <p class="fs-12 text-muted mb-0">Canada</p>
-                                        </div><!--end media body-->
-                                    </div>
-                                </td>
-                                <td><a href="#" class="text-body text-decoration-underline">dummy@gmail.com</a></td>
-                                <td>+1 234 567 890</td>
-                                <td>15 August 2024</td>
-                                <td><span class="badge rounded text-success bg-success-subtle">Active</span></td>
-                                <td class="text-end">
-                                    <a href="#"><i class="las la-pen text-secondary fs-18"></i></a>
-                                    <a href="#"><i class="las la-trash-alt text-secondary fs-18"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="d-flex align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <img src="/images/users/avatar-3.jpg" class="me-2 thumb-md align-self-center rounded" alt="...">
-                                        <div class="flex-grow-1 text-truncate">
-                                            <h6 class="m-0">Steven Sharp</h6>
-                                            <p class="fs-12 text-muted mb-0">France</p>
-                                        </div><!--end media body-->
-                                    </div>
-                                </td>
-                                <td><a href="#" class="text-body text-decoration-underline">extradummy@gmail.com</a></td>
-                                <td>+1 234 567 890</td>
-                                <td>08 August 2024</td>
-                                <td><span class="badge rounded text-secondary bg-secondary-subtle">Inactive</span></td>
-                                <td class="text-end">
-                                    <a href="#"><i class="las la-pen text-secondary fs-18"></i></a>
-                                    <a href="#"><i class="las la-trash-alt text-secondary fs-18"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="d-flex align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <img src="/images/users/avatar-4.jpg" class="me-2 thumb-md align-self-center rounded" alt="...">
-                                        <div class="flex-grow-1 text-truncate">
-                                            <h6 class="m-0">Teresa Himes</h6>
-                                            <p class="fs-12 text-muted mb-0">India</p>
-                                        </div><!--end media body-->
-                                    </div>
-                                </td>
-                                <td><a href="#" class="text-body text-decoration-underline">extradummy@gmail.com</a></td>
-                                <td>+1 234 567 890</td>
-                                <td>02 August 2024</td>
-                                <td><span class="badge rounded text-success bg-success-subtle">Active</span></td>
-                                <td class="text-end">
-                                    <a href="#"><i class="las la-pen text-secondary fs-18"></i></a>
-                                    <a href="#"><i class="las la-trash-alt text-secondary fs-18"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="d-flex align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <img src="/images/users/avatar-5.jpg" class="me-2 thumb-md align-self-center rounded" alt="...">
-                                        <div class="flex-grow-1 text-truncate">
-                                            <h6 class="m-0">Ralph Denton</h6>
-                                            <p class="fs-12 text-muted mb-0">UK</p>
-                                        </div><!--end media body-->
-                                    </div>
-                                </td>
-                                <td><a href="#" class="text-body text-decoration-underline">dummy@gmail.com</a></td>
-                                <td>+1 234 567 890</td>
-                                <td>28 July 2024</td>
-                                <td><span class="badge rounded text-secondary bg-secondary-subtle">Inactive</span></td>
-                                <td class="text-end">
-                                    <a href="#"><i class="las la-pen text-secondary fs-18"></i></a>
-                                    <a href="#"><i class="las la-trash-alt text-secondary fs-18"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="d-flex align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <img src="/images/users/avatar-1.jpg" class="me-2 thumb-md align-self-center rounded" alt="...">
-                                        <div class="flex-grow-1 text-truncate">
-                                            <h6 class="m-0">Unity Pugh</h6>
-                                            <p class="fs-12 text-muted mb-0">Germany</p>
-                                        </div><!--end media body-->
-                                    </div>
-                                </td>
-                                <td><a href="#" class="text-body text-decoration-underline">extradummy@gmail.com</a></td>
-                                <td>+1 234 567 890</td>
-                                <td>19 July 2024</td>
-                                <td><span class="badge rounded text-success bg-success-subtle">Active</span></td>
-                                <td class="text-end">
-                                    <a href="#"><i class="las la-pen text-secondary fs-18"></i></a>
-                                    <a href="#"><i class="las la-trash-alt text-secondary fs-18"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="d-flex align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <img src="/images/users/avatar-1.jpg" class="me-2 thumb-md align-self-center rounded" alt="...">
-                                        <div class="flex-grow-1 text-truncate">
-                                            <h6 class="m-0">Scott Holland</h6>
-                                            <p class="fs-12 text-muted mb-0">USA</p>
-                                        </div><!--end media body-->
-                                    </div>
-                                </td>
-                                <td><a href="#" class="text-body text-decoration-underline">dummy@gmail.com</a></td>
-                                <td>+1 234 567 890</td>
-                                <td>14 July 2024</td>
-                                <td><span class="badge rounded text-success bg-success-subtle">Active</span></td>
-                                <td class="text-end">
-                                    <a href="#"><i class="las la-pen text-secondary fs-18"></i></a>
-                                    <a href="#"><i class="las la-trash-alt text-secondary fs-18"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="d-flex align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <img src="/images/users/avatar-2.jpg" class="me-2 thumb-md align-self-center rounded" alt="...">
-                                        <div class="flex-grow-1 text-truncate">
-                                            <h6 class="m-0">Karen Savage</h6>
-                                            <p class="fs-12 text-muted mb-0">USA</p>
-                                        </div><!--end media body-->
-                                    </div>
-                                </td>
-                                <td><a href="#" class="text-body text-decoration-underline">extradummy@gmail.com</a></td>
-                                <td>+1 234 567 890</td>
-                                <td>10 July 2024</td>
-                                <td><span class="badge rounded text-success bg-success-subtle">Active</span></td>
-                                <td class="text-end">
-                                    <a href="#"><i class="las la-pen text-secondary fs-18"></i></a>
-                                    <a href="#"><i class="las la-trash-alt text-secondary fs-18"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="d-flex align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <img src="/images/users/avatar-3.jpg" class="me-2 thumb-md align-self-center rounded" alt="...">
-                                        <div class="flex-grow-1 text-truncate">
-                                            <h6 class="m-0">Steven Sharp</h6>
-                                            <p class="fs-12 text-muted mb-0">Russia</p>
-                                        </div><!--end media body-->
-                                    </div>
-                                </td>
-                                <td><a href="#" class="text-body text-decoration-underline">dummy@gmail.com</a></td>
-                                <td>+1 234 567 890</td>
-                                <td>21 June 2024</td>
-                                <td><span class="badge rounded text-secondary bg-secondary-subtle">Inactive</span></td>
-                                <td class="text-end">
-                                    <a href="#"><i class="las la-pen text-secondary fs-18"></i></a>
-                                    <a href="#"><i class="las la-trash-alt text-secondary fs-18"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="d-flex align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <img src="/images/users/avatar-4.jpg" class="me-2 thumb-md align-self-center rounded" alt="...">
-                                        <div class="flex-grow-1 text-truncate">
-                                            <h6 class="m-0">Teresa Himes</h6>
-                                            <p class="fs-12 text-muted mb-0">USA</p>
-                                        </div><!--end media body-->
-                                    </div>
-                                </td>
-                                <td><a href="#" class="text-body text-decoration-underline">extradummy@gmail.com</a></td>
-                                <td>+1 234 567 890</td>
-                                <td>12 June 2024</td>
-                                <td><span class="badge rounded text-success bg-success-subtle">Active</span></td>
-                                <td class="text-end">
-                                    <a href="#"><i class="las la-pen text-secondary fs-18"></i></a>
-                                    <a href="#"><i class="las la-trash-alt text-secondary fs-18"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="d-flex align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <img src="/images/users/avatar-5.jpg" class="me-2 thumb-md align-self-center rounded" alt="...">
-                                        <div class="flex-grow-1 text-truncate">
-                                            <h6 class="m-0">Ralph Denton</h6>
-                                            <p class="fs-12 text-muted mb-0">ShriSri Lanka</p>
-                                        </div><!--end media body-->
-                                    </div>
-                                </td>
-                                <td><a href="#" class="text-body text-decoration-underline">dummy@gmail.com</a></td>
-                                <td>+1 234 567 890</td>
-                                <td>17 May 2024</td>
-                                <td><span class="badge rounded text-secondary bg-secondary-subtle">Inactive</span></td>
-                                <td class="text-end">
-                                    <a href="#"><i class="las la-pen text-secondary fs-18"></i></a>
-                                    <a href="#"><i class="las la-trash-alt text-secondary fs-18"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="d-flex align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <img src="/images/users/avatar-2.jpg" class="me-2 thumb-md align-self-center rounded" alt="...">
-                                        <div class="flex-grow-1 text-truncate">
-                                            <h6 class="m-0">Karen Savage</h6>
-                                            <p class="fs-12 text-muted mb-0">USA</p>
-                                        </div><!--end media body-->
-                                    </div>
-                                </td>
-                                <td><a href="#" class="text-body text-decoration-underline">extradummy@gmail.com</a></td>
-                                <td>+1 234 567 890</td>
-                                <td>07 May 2024</td>
-                                <td><span class="badge rounded text-success bg-success-subtle">Active</span></td>
-                                <td class="text-end">
-                                    <a href="#"><i class="las la-pen text-secondary fs-18"></i></a>
-                                    <a href="#"><i class="las la-trash-alt text-secondary fs-18"></i></a>
-                                </td>
-                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </div>
-    </div> <!-- end col -->
-</div> <!-- end row -->
+                
+                <!-- Pagination -->
+                 <div class="mt-3">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            @if($attributes['page'] > 1)
+                                <li class="page-item"><a class="page-link" href="?page={{ $attributes['page'] - 1 }}&search_value={{ $params->search_value }}">Previous</a></li>
+                            @endif
+                            
+                            {{-- Simple Logic for Pagination Display --}}
+                            <li class="page-item disabled"><span class="page-link">Page {{ $attributes['page'] }} of {{ $attributes['lastPage'] }}</span></li>
 
-<div class="modal fade" id="addUser" tabindex="-1" aria-labelledby="addUserLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addUserLabel">Add User Detail</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group mb-2">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-user text-muted thumb-xl rounded me-2 border-dashed"></i>
-                        <div class="flex-grow-1 text-truncate">
-                            <label class="btn btn-primary text-light">
-                                Add Avatar <input type="file" hidden="">
-                            </label>
-                        </div><!--end media body-->
-                    </div>
-                </div>
-                <div class=" mb-2">
-                    <label for="fullName">Full Name</label>
-                    <div class="input-group">
-                        <span class="input-group-text" id="fullName"><i class="far fa-user"></i></span>
-                        <input type="text" class="form-control" placeholder="Name" aria-label="FullName">
-                    </div>
-                </div>
-                <div class=" mb-2">
-                    <label for="email">Email</label>
-                    <div class="input-group">
-                        <span class="input-group-text" id="email"><i class="far fa-envelope"></i></span>
-                        <input type="email" class="form-control" placeholder="Email address" aria-label="email">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-2">
-                            <label for="ragisterDate">Register Date</label>
-                            <div class="input-group">
-                                <span class="input-group-text" id="ragisterDate"><i class="far fa-calendar"></i></span>
-                                <input type="text" class="form-control" placeholder="00/2024" aria-label="ragisterDate">
-                            </div>
-                        </div>
-                    </div><!--end col-->
-                    <div class="col-md-6">
-                        <div class="mb-2">
-                            <label for="mobilleNo">Mobille No</label>
-                            <div class="input-group">
-                                <span class="input-group-text" id="mobilleNo"><i class="fas fa-phone"></i></span>
-                                <input type="text" class="form-control" placeholder="+1 234 567 890" aria-label="mobilleNo">
-                            </div>
-                        </div>
-                    </div><!--end col-->
-                </div><!--end row-->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary w-100">Add User</button>
+                            @if($attributes['page'] < $attributes['lastPage'])
+                                <li class="page-item"><a class="page-link" href="?page={{ $attributes['page'] + 1 }}&search_value={{ $params->search_value }}">Next</a></li>
+                            @endif
+                        </ul>
+                    </nav>
+                 </div>
             </div>
         </div>
+    </div> 
+</div>
+
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form action="{{ route('users.store') }}" method="POST">
+            @csrf
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" name="password" class="form-control" placeholder="Default: password123">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Role</label>
+                        <select name="role_id" class="form-select" required>
+                            <option value="">Select Role</option>
+                            @foreach($roles as $role)
+                                <option value="{{ $role->id }}">{{ $role->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="editUserForm" action="#" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" name="name" id="edit_name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" id="edit_email" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password <small class="text-muted">(Leave blank to keep current)</small></label>
+                        <input type="password" name="password" class="form-control">
+                    </div>
+                     <div class="mb-3">
+                        <label class="form-label">Role</label>
+                        <select name="role_id" id="edit_role_id" class="form-select">
+                            <option value="">Select Role (Leave unchanged if not updating)</option>
+                            @foreach($roles as $role)
+                                <option value="{{ $role->id }}">{{ $role->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 
 @endsection
 
 @section('script-bottom')
-@vite(['resources/js/pages/datatable.init.js'])
+<script>
+    // Edit Modal Logic
+    const editModal = document.getElementById('editUserModal');
+    editModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const id = button.getAttribute('data-id');
+        const name = button.getAttribute('data-name');
+        const email = button.getAttribute('data-email');
+        
+        const form = document.getElementById('editUserForm');
+        form.action = '/users/' + id; // Warning: Route prefix might be needed. assuming /users resource or route setup
+        
+        document.getElementById('edit_name').value = name;
+        document.getElementById('edit_email').value = email;
+    });
+</script>
 @endsection
