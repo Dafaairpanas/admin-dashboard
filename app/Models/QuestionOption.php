@@ -24,4 +24,9 @@ class QuestionOption extends Model
     {
         return $this->hasMany(QuestionOptionTranslation::class, 'question_option_id', 'id');
     }
+
+    public function refQuestionOptionTranslation($languageCode)
+    {
+        return $this->refQuestionOptionTranslations()->where('language_code', $languageCode);
+    }
 }

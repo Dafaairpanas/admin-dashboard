@@ -73,6 +73,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>Code</th>
+                                    <th>Flag</th>
                                     <th>Name</th>
                                     <th>Status</th>
                                     <th>Default</th>
@@ -83,6 +84,13 @@
                                 @forelse($data as $language)
                                     <tr>
                                         <td>{{ $language->code }}</td>
+                                        <td>
+                                            @if($language->flag)
+                                                <img src="{{ asset($language->flag) }}" alt="" height="15" class="me-2">
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
                                         <td>{{ $language->name }}</td>
                                         <td>
                                             @if($language->is_active)
@@ -136,7 +144,7 @@
     <!-- Add Language Modal -->
     <div class="modal fade" id="addLanguageModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
-            <form action="{{ route('languages.store') }}" method="POST">
+            <form action="{{ route('languages.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">
@@ -152,6 +160,10 @@
                         <div class="mb-3">
                             <label class="form-label">Name</label>
                             <input type="text" name="name" class="form-control" required maxlength="100">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Flag Image</label>
+                            <input type="file" name="flag" class="form-control" accept="image/*">
                         </div>
                         <div class="form-check form-switch mb-2">
                             <input class="form-check-input" type="checkbox" id="add_is_active" name="is_active" value="1"
@@ -175,7 +187,7 @@
     <!-- Edit Language Modal -->
     <div class="modal fade" id="editLanguageModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
-            <form id="editLanguageForm" action="#" method="POST">
+            <form id="editLanguageForm" action="#" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <div class="modal-content">
@@ -191,6 +203,10 @@
                         <div class="mb-3">
                             <label class="form-label">Name</label>
                             <input type="text" name="name" id="edit_name" class="form-control" required maxlength="100">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Flag Image (Leave empty to keep current)</label>
+                            <input type="file" name="flag" class="form-control" accept="image/*">
                         </div>
                         <div class="form-check form-switch mb-2">
                             <input class="form-check-input" type="checkbox" id="edit_is_active" name="is_active" value="1">

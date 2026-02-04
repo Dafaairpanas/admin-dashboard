@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Submission;
 use App\Models\SubmissionAnswer;
 
-class AdminSubmissionController extends Controller
+class SubmissionController extends Controller
 {
     /**
      * Display a listing of submissions

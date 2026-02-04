@@ -73,7 +73,7 @@
                             <tr>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <i class="fas fa-user-circle fs-3 me-2 text-muted"></i>
+                                        <img src="https://ui-avatars.com/api/?name={{ urlencode($user['name']) }}&background={{ str_replace('#', '', $user['role_badge']) }}&color=ffffff&size=35" class="me-2 thumb-sm rounded-circle" alt="...">
                                         <div>
                                             <h6 class="m-0">{{ $user['name'] }}</h6>
                                         </div>
@@ -241,7 +241,7 @@
         const email = button.getAttribute('data-email');
         
         const form = document.getElementById('editUserForm');
-        form.action = '/users/' + id; // Warning: Route prefix might be needed. assuming /users resource or route setup
+        form.action = '/admin/users/' + id;
         
         document.getElementById('edit_name').value = name;
         document.getElementById('edit_email').value = email;

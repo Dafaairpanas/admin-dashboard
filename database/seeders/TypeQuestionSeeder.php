@@ -20,6 +20,11 @@ class TypeQuestionSeeder extends Seeder
                 'has_options' => false,
             ],
             [
+                'code' => 'number',
+                'name' => 'Number Input',
+                'has_options' => false,
+            ],
+            [
                 'code' => 'textarea',
                 'name' => 'Paragraph (Text Area)',
                 'has_options' => false,
@@ -35,7 +40,12 @@ class TypeQuestionSeeder extends Seeder
                 'has_options' => true,
             ],
             [
-                'code' => 'select',
+                'code' => 'checkbox_card',
+                'name' => 'Checkbox Card',
+                'has_options' => true,
+            ],
+            [
+                'code' => 'dropdown',
                 'name' => 'Dropdown (Select)',
                 'has_options' => true,
             ],

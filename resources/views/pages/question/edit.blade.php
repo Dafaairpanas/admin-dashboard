@@ -52,6 +52,13 @@
                                 <input type="number" name="urutan" class="form-control" value="{{ $question->urutan ?? 0 }}"
                                     required>
                             </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Key (Auto-generated)</label>
+                                <input type="text" name="key" id="key_input" class="form-control bg-light"
+                                    value="{{ $question->key ?? '' }}" readonly>
+                                <small class="text-muted">Auto-generated from Indonesian question text</small>
+                            </div>
+
                             <div class="col-md-2 mb-3 d-flex align-items-end">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" id="is_active" name="is_active"
@@ -85,6 +92,7 @@
                                     <a class="nav-link {{ $index === 0 ? 'active' : '' }}" data-bs-toggle="tab"
                                         href="#tab_q_{{ $lang->code }}" role="tab"
                                         aria-selected="{{ $index === 0 ? 'true' : 'false' }}">
+                                        @if($lang->flag) <img src="{{ asset($lang->flag) }}" class="me-1" height="12"> @endif
                                         {{ $lang->name }} ({{ strtoupper($lang->code) }})
                                         @if($lang->is_default) <span class="badge bg-primary ms-1">Default</span> @endif
                                     </a>
@@ -112,6 +120,25 @@
                 </div>
             </div>
 
+            <div class="row">
+                <div class="col-md-4 mb-3" id="max_selections_container" style="display: none;">
+                    <label class="form-label">Selection Mode</label>
+                    <select name="max_selections" class="form-select">
+                        <option value="" {{ !$question || $question->max_selections === null ? 'selected' : '' }}>
+                            Multiple Options
+                            (Unlimited)</option>
+                        <option value="1" {{ $question && $question->max_selections === 1 ? 'selected' : '' }}>Single
+                            Option (Limit 1)</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3" id="grid_columns_container" style="display: none;">
+                    <label class="form-label">Grid Columns</label>
+                    <input type="number" name="grid_columns" class="form-control" min="1" max="12"
+                        value="{{ $question->grid_columns ?? 1 }}">
+                    <small class="text-muted">1 = Vertical List, 2 = 2 Columns, etc.</small>
+                </div>
+            </div>
+
             <!-- Options Section (Dynamic) -->
             <div class="col-lg-12" id="options_section" style="display: none;">
                 <div class="card">
@@ -128,7 +155,10 @@
                                     <tr>
                                         <th style="width: 80px;">Order</th>
                                         @foreach($languages as $lang)
-                                            <th>{{ strtoupper($lang->code) }} Text</th>
+                                            <th>
+                                                @if($lang->flag) <img src="{{ asset($lang->flag) }}" class="me-1" height="12"> @endif
+                                                {{ strtoupper($lang->code) }} Text
+                                            </th>
                                         @endforeach
                                         <th style="width: 60px;">X</th>
                                     </tr>
@@ -143,14 +173,21 @@
                                                         class="form-control" value="{{ $opt->urutan }}" required>
                                                 </td>
                                                 @foreach($languages as $lang)
-                                                                @php
-                                                                    $optVal = $opt->refQuestionOptionTranslations->where('language_code', $lang->code)->first()->option_text ?? '';
-                                                                @endphp
+                                                    @php
+                                                        $optVal = $opt->refQuestionOptionTranslations->where('language_code', $lang->code)->first()->option_text ?? '';
+                                                    @endphp
                                                     <td>
-                                                                    <input type="text"
-                                                                        name="options[{{ $optIndex }}][translations][{{ $lang->code }}][option_text]"
-                                                                        class="form-control" value="{{ $optVal }}">
-                                                                </td>
+                                                        <input type="text"
+                                                            name="options[{{ $optIndex }}][translations][{{ $lang->code }}][option_text]"
+                                                            class="form-control mb-1" value="{{ $optVal }}" placeholder="Option Text">
+                                                        @php
+                                                            $descVal = $opt->refQuestionOptionTranslations->where('language_code', $lang->code)->first()->description ?? '';
+                                                        @endphp
+                                                        <textarea
+                                                            name="options[{{ $optIndex }}][translations][{{ $lang->code }}][description]"
+                                                            class="form-control" rows="2"
+                                                            placeholder="Description (Optional)">{{ $descVal }}</textarea>
+                                                    </td>
                                                 @endforeach
                                                 <td>
                                                     <button type="button" class="btn btn-sm btn-soft-danger btn-remove-option"><i
@@ -193,11 +230,29 @@
             function checkTypeForOptions() {
                 const selectedOption = typeSelect.options[typeSelect.selectedIndex];
                 const hasOptions = selectedOption.getAttribute('data-has-options');
+                const typeText = selectedOption.innerText.toLowerCase();
 
+                // Toggle Options Section
                 if (hasOptions == '1') {
                     optionsSection.style.display = 'block';
                 } else {
                     optionsSection.style.display = 'none';
+                }
+
+                // Toggle Selection Mode & Grid Columns
+                // Show only for Checkbox and Radio types
+                const maxSelectionsContainer = document.getElementById('max_selections_container');
+                const gridColumnsContainer = document.getElementById('grid_columns_container');
+
+                if (typeText.includes('checkbox') || typeText.includes('radio')) {
+                    maxSelectionsContainer.style.display = 'block';
+                    gridColumnsContainer.style.display = 'block';
+                } else {
+                    maxSelectionsContainer.style.display = 'none';
+                    gridColumnsContainer.style.display = 'none';
+                    // Reset value if hidden
+                    document.querySelector('select[name="max_selections"]').value = "";
+                    document.querySelector('input[name="grid_columns"]').value = "1";
                 }
             }
 
@@ -212,7 +267,10 @@
                 let html = `<td><input type="number" name="options[${optionIndex}][urutan]" class="form-control" value="${optionIndex + 1}" required></td>`;
 
                 @foreach($languages as $lang)
-                    html += `<td><input type="text" name="options[${optionIndex}][translations][{{ $lang->code }}][option_text]" class="form-control"></td>`;
+                    html += `<td>
+                                        <input type="text" name="options[${optionIndex}][translations][{{ $lang->code }}][option_text]" class="form-control mb-1" placeholder="Option Text">
+                                        <textarea name="options[${optionIndex}][translations][{{ $lang->code }}][description]" class="form-control" rows="2" placeholder="Description (Optional)"></textarea>
+                                    </td>`;
                 @endforeach
 
                 html += `<td><button type="button" class="btn btn-sm btn-soft-danger btn-remove-option"><i class="las la-trash"></i></button></td>`;
@@ -228,6 +286,24 @@
                     e.target.closest('tr').remove();
                 }
             });
+
+            // Auto-generate Key from Indonesian Question Text
+            const questionTextId = document.querySelector('textarea[name="translations[id][question_text]"]');
+            const keyInput = document.getElementById('key_input');
+
+            if (questionTextId && keyInput) {
+                questionTextId.addEventListener('input', function () {
+                    let text = this.value.trim();
+
+                    // Convert to lowercase and replace spaces with underscores
+                    let key = text.toLowerCase()
+                        .replace(/[^a-z0-9\s]/g, '') // Remove special characters
+                        .replace(/\s+/g, '_')         // Replace spaces with underscore
+                        .substring(0, 50);            // Limit to 50 characters
+
+                    keyInput.value = key;
+                });
+            }
         });
     </script>
 @endsection

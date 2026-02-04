@@ -25,11 +25,38 @@ class QUser
         return [
             'items' => $data->getCollection()
                 ->transform(function ($item) {
+                    $roleName = $item->refRole ? $item->refRole->name : ($item->role ?? 'No Role');
+                    $badgeColor = $item->refRole ? $item->refRole->badge_color : '#6c757d';
+
+                    // Map Bootstrap classes to Hex codes for style attribute
+                    $colors = [
+                        'success' => '#198754', // Green
+                        'info' => '#0dcaf0',    // Cyan
+                        'warning' => '#ffc107', // Yellow
+                        'danger' => '#dc3545',  // Red
+                        'primary' => '#0d6efd', // Blue
+                        'secondary' => '#6c757d', // Grey
+                    ];
+
+                    if (isset($colors[$badgeColor])) {
+                        $badgeColor = $colors[$badgeColor];
+                    }
+
+                    // Fallback badge colors for legacy roles
+                    if (!$item->refRole && $item->role) {
+                        $badgeColor = match (strtolower($item->role)) {
+                            'admin' => $colors['info'],
+                            'superadmin' => $colors['success'],
+                            'manager' => $colors['warning'],
+                            default => $colors['secondary'],
+                        };
+                    }
+
                     return [
                         'id' => $item->id,
                         'name' => $item->name,
-                        'role_name' => $item->refRole ? $item->refRole->name : 'No Role',
-                        'role_badge' => $item->refRole ? $item->refRole->badge_color : '#6c757d',
+                        'role_name' => $roleName,
+                        'role_badge' => $badgeColor,
                         'email' => $item->email,
                         'created_at' => Carbon::parse($item->created_at)->format('d-m-Y H:i:s'),
                     ];
@@ -64,15 +91,18 @@ class QUser
             if ($keys) {
                 throw new \Exception("Email sudah terdaftar.");
             }
+            $roleObj = \App\Models\Role::find($params['role_id']);
+
             $insert = new Model;
             $insert->name = $params['name'];
             $insert->email = $params['email'];
+            $insert->role = $roleObj ? $roleObj->name : 'user'; // Sync legacy column
             $insert->password = isset($params['password']) ? Hash::make($params['password']) : Hash::make(AppHelper::PASS_DEFAULT);
             $insert->created_at = Carbon::now();
             $insert->updated_at = null;
             $insert->save();
 
-            $insert->refUserRole()->create([
+            $insert->refRoleUser()->create([
                 'role_id' => $params['role_id'],
                 'created_at' => Carbon::now(),
                 'updated_at' => null,
@@ -114,11 +144,20 @@ class QUser
             if (!empty($params['password'])) {
                 $update->password = Hash::make($params['password']);
             }
+
+            // Sync legacy column if role is updated
+            if (!empty($params['role_id'])) {
+                $roleObj = \App\Models\Role::find($params['role_id']);
+                if ($roleObj) {
+                    $update->role = $roleObj->name;
+                }
+            }
+
             $update->updated_at = Carbon::now();
             $update->save();
 
             if (!empty($params['role_id'])) {
-                $update->refUserRole()->updateOrCreate([
+                $update->refRoleUser()->updateOrCreate([
                     'role_id' => $params['role_id'],
                 ], [
                     'created_at' => Carbon::now(),

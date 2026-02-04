@@ -41,4 +41,9 @@ class Submission extends Model
     {
         return $this->belongsTo(MasterVisitorCategory::class, 'visitor_category_id', 'id');
     }
+
+    public function refSubmissionAnswers()
+    {
+        return $this->hasMany(SubmissionAnswer::class, 'submission_id', 'id');
+    }
 }

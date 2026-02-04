@@ -31,6 +31,7 @@ class LanguageController extends Controller
         $validator = Validator::make($request->all(), [
             'code' => 'required|string|max:10|unique:languages,code',
             'name' => 'required|string|max:100',
+            'flag' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'is_default' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
         ]);
@@ -44,9 +45,18 @@ class LanguageController extends Controller
             Languages::where('is_default', 1)->update(['is_default' => 0]);
         }
 
+        $flagPath = null;
+        if ($request->hasFile('flag')) {
+            $image = $request->file('flag');
+            $imageName = $request->code . '_' . time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('images/flags'), $imageName);
+            $flagPath = 'images/flags/' . $imageName;
+        }
+
         Languages::create([
             'code' => $request->code,
             'name' => $request->name,
+            'flag' => $flagPath,
             'is_default' => $request->has('is_default') ? 1 : 0,
             'is_active' => $request->has('is_active') ? 1 : 0,
         ]);
@@ -61,6 +71,7 @@ class LanguageController extends Controller
         $validator = Validator::make($request->all(), [
             'code' => 'required|string|max:10|unique:languages,code,' . $id,
             'name' => 'required|string|max:100',
+            'flag' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'is_default' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
         ]);
@@ -74,12 +85,23 @@ class LanguageController extends Controller
             Languages::where('is_default', 1)->where('id', '!=', $id)->update(['is_default' => 0]);
         }
 
-        // If unsetting default, ensure atleast one default exists? 
-        // For now allow simple toggle.
+        $flagPath = $language->flag;
+        if ($request->hasFile('flag')) {
+            // Delete old flag if exists
+            if ($language->flag && file_exists(public_path($language->flag))) {
+                @unlink(public_path($language->flag));
+            }
+
+            $image = $request->file('flag');
+            $imageName = $request->code . '_' . time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('images/flags'), $imageName);
+            $flagPath = 'images/flags/' . $imageName;
+        }
 
         $language->update([
             'code' => $request->code,
             'name' => $request->name,
+            'flag' => $flagPath,
             'is_default' => $request->has('is_default') ? 1 : 0,
             'is_active' => $request->has('is_active') ? 1 : 0,
         ]);

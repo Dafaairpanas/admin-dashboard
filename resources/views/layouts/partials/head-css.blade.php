@@ -10,5 +10,15 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation-icons/3.0.1/foundation-icons.min.css">
 
+<!-- Fix Pagination SVG Size -->
+<style>
+    .pagination svg {
+        width: 1rem !important;
+        height: 1rem !important;
+        max-width: 1rem !important;
+        max-height: 1rem !important;
+    }
+</style>
+
 @yield('css')
 @vite(['resources/scss/bootstrap.scss', 'resources/scss/app.scss'])

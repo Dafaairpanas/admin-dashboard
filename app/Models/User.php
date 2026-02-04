@@ -56,9 +56,50 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id');
     }
 
+    // Accessor removed to prevent shadowing legacy 'role' column
     public function getRefRoleAttribute()
     {
         return $this->roles->first();
+    }
+
+    public function getRoleColorAttribute()
+    {
+        // 1. Try relationship
+        $role = $this->roles->first();
+        if ($role && $role->badge_color) {
+            // Map standard bootstrap names if stored in DB
+            $colors = [
+                'success' => '#198754',
+                'info' => '#0dcaf0',
+                'warning' => '#ffc107',
+                'danger' => '#dc3545',
+                'primary' => '#0d6efd',
+                'secondary' => '#6c757d',
+            ];
+            if (isset($colors[$role->badge_color])) {
+                return $colors[$role->badge_color];
+            }
+            return $role->badge_color;
+        }
+
+        // 2. Fallback to legacy
+        $colors = [
+            'admin' => '#0dcaf0',
+            'superadmin' => '#198754',
+            'manager' => '#ffc107',
+        ];
+
+        return $colors[strtolower($this->role ?? '')] ?? '#6c757d'; // Default grey
+    }
+
+    /**
+     * Check if user has a specific role
+     * @param string $roleName
+     * @return bool
+     */
+    public function hasRole($roleName)
+    {
+        return $this->roles()->where('name', $roleName)->exists();
     }
 
 }

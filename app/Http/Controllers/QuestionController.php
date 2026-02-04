@@ -71,8 +71,11 @@ class QuestionController extends Controller
                 'survey_id' => $request->survey_id,
                 'type_question_id' => $request->type_question_id,
                 'urutan' => $request->urutan,
+                'key' => $request->key,
                 'is_required' => $request->has('is_required') ? 1 : 0,
                 'is_active' => $request->has('is_active') ? 1 : 0,
+                'max_selections' => $request->max_selections,
+                'grid_columns' => $request->grid_columns ?? 1,
             ]);
 
             // Save Question Translations
@@ -112,7 +115,8 @@ class QuestionController extends Controller
                                 QuestionOptionTranslation::create([
                                     'question_option_id' => $option->id,
                                     'language_code' => $code,
-                                    'option_text' => $trans['option_text']
+                                    'option_text' => $trans['option_text'],
+                                    'description' => $trans['description'] ?? null
                                 ]);
                             }
                         }
@@ -152,8 +156,11 @@ class QuestionController extends Controller
             $question->update([
                 'type_question_id' => $request->type_question_id,
                 'urutan' => $request->urutan,
+                'key' => $request->key,
                 'is_required' => $request->has('is_required') ? 1 : 0,
                 'is_active' => $request->has('is_active') ? 1 : 0,
+                'max_selections' => $request->max_selections,
+                'grid_columns' => $request->grid_columns ?? 1,
             ]);
 
             // Update/Create Translations
@@ -195,7 +202,10 @@ class QuestionController extends Controller
                         foreach ($optData['translations'] as $code => $trans) {
                             QuestionOptionTranslation::updateOrCreate(
                                 ['question_option_id' => $option->id, 'language_code' => $code],
-                                ['option_text' => $trans['option_text']]
+                                [
+                                    'option_text' => $trans['option_text'],
+                                    'description' => $trans['description'] ?? null
+                                ]
                             );
                         }
                     }

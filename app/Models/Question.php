@@ -17,7 +17,8 @@ class Question extends Model
         'urutan',
         'is_required',
         'is_active',
-
+        'max_selections',
+        'grid_columns',
         'parent_option_id',
     ];
 
@@ -39,5 +40,10 @@ class Question extends Model
     public function refQuestionOptions()
     {
         return $this->hasMany(QuestionOption::class, 'question_id', 'id')->orderBy('urutan');
+    }
+
+    public function refQuestionTranslation($languageCode)
+    {
+        return $this->refQuestionTranslations()->where('language_code', $languageCode);
     }
 }

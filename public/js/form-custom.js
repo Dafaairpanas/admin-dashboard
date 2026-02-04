@@ -4,11 +4,15 @@ const totalSteps = 2;
 
 // Form data storage
 let formData = {
-    jenis_bisnis: [],
+    business_type: [],
     kebutuhan_furniture: [],
     estimasi_jumlah: [],
     preferensi_brand: []
 };
+
+// Form state key for localStorage
+const FORM_STATE_KEY = 'approx_form_state';
+const FORM_DATA_KEY = 'approx_form_data';
 
 // Language System
 let currentLang = localStorage.getItem('selectedLanguage') || 'en'; // Default English
@@ -219,7 +223,14 @@ if (window.dynamicTranslations) {
 }
 
 function t(key) {
-    return translations[currentLang][key] || key;
+    if (!translations[currentLang]) {
+        // Fallback to English if language not found, or just return key
+        if (translations['en'] && translations['en'][key]) {
+            return translations['en'][key];
+        }
+        return key;
+    }
+    return translations[currentLang][key] || translations['en'][key] || key;
 }
 
 function switchLanguage(lang) {
@@ -229,21 +240,25 @@ function switchLanguage(lang) {
     localStorage.setItem('selectedLanguage', lang);
 
     // Kirim ke backend untuk sync session/cookie
-    // fetch('/switch-language', {
-    //     method: 'POST',
-    //     headers: {
-    //         'Content-Type': 'application/json',
-    //         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-    //     },
-    //     body: JSON.stringify({ lang: lang })
-    // })
-    // .then(response => response.json())
-    // .then(data => {
-    //     console.log('Language switched to:', lang);
-    // })
-    // .catch(error => {
-    //     console.error('Error switching language:', error);
-    // });
+    // Kirim ke backend untuk sync session/cookie
+    fetch('/switch-language', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ lang: lang })
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Language switched to:', lang);
+            // Optional: reload page to ensure backend-rendered content matches
+            // location.reload(); 
+            // For now, we keep it SPA-like for static texts, but session needs to updates
+        })
+        .catch(error => {
+            console.error('Error switching language:', error);
+        });
 
     // Update flag
     updateFlag(lang);
@@ -260,6 +275,21 @@ function switchLanguage(lang) {
 
     // Update visitor categories (dynamic content from database)
     updateVisitorCategories(lang);
+
+    // Update dynamic question labels
+    document.querySelectorAll('.question-label').forEach(label => {
+        const textKey = `data-text-${lang}`;
+        const questionText = label.getAttribute(textKey);
+
+        if (questionText) {
+            // Keep the required asterisk if it exists
+            const requiredSpan = label.querySelector('.required');
+            label.textContent = questionText;
+            if (requiredSpan) {
+                label.appendChild(requiredSpan);
+            }
+        }
+    });
 
     // Update visible error messages
     document.querySelectorAll('.error-message.show').forEach(el => {
@@ -278,10 +308,17 @@ function updateFlag(lang) {
     if (!selectedLang) return;
 
     const flagImg = selectedLang.querySelector('.flag-circle');
-    const flagUrl = lang === 'id'
-        ? '/images/logos/idflag.png'
-        : '/images/logos/engflag.png';
-    const flagAlt = lang === 'id' ? 'Indonesia' : 'English';
+
+    // Find option for selected lang
+    const option = document.querySelector(`.lang-option[data-lang="${lang}"]`);
+
+    let flagUrl = '/images/logos/engflag.png'; // Fallback
+    let flagAlt = 'English';
+
+    if (option) {
+        flagUrl = option.getAttribute('data-flag');
+        flagAlt = option.getAttribute('data-name') || lang.toUpperCase();
+    }
 
     if (flagImg) {
         flagImg.src = flagUrl;
@@ -374,6 +411,9 @@ document.addEventListener('DOMContentLoaded', function () {
             langDropdown.classList.remove('active');
         });
     });
+
+    // Restore form state from localStorage (if exists)
+    restoreFormState();
 });
 
 // Function to update visitor categories based on language
@@ -392,6 +432,81 @@ function updateVisitorCategories(lang) {
     });
 }
 
+// Save form state to localStorage
+function saveFormState() {
+    const formState = {
+        nama_lengkap: document.getElementById('nama_lengkap').value,
+        whatsapp: document.getElementById('whatsapp').value,
+        email: document.getElementById('email').value,
+        kategori_pengunjung: document.getElementById('kategori_pengunjung').value,
+        nama_perusahaan: document.getElementById('nama_perusahaan').value,
+        posisi_jabatan: document.getElementById('posisi_jabatan').value,
+        jenis_bisnis_lainnya: document.getElementById('jenis_bisnis_lainnya').value,
+        business_type: formData.business_type
+    };
+
+    localStorage.setItem(FORM_DATA_KEY, JSON.stringify(formState));
+}
+
+// Restore form state from localStorage
+function restoreFormState() {
+    const savedStep = localStorage.getItem(FORM_STATE_KEY);
+    const savedData = localStorage.getItem(FORM_DATA_KEY);
+
+    if (savedStep && savedData) {
+        try {
+            const formState = JSON.parse(savedData);
+
+            // Restore Step 1 fields
+            if (formState.nama_lengkap) document.getElementById('nama_lengkap').value = formState.nama_lengkap;
+            if (formState.whatsapp) document.getElementById('whatsapp').value = formState.whatsapp;
+            if (formState.email) document.getElementById('email').value = formState.email;
+            if (formState.kategori_pengunjung) {
+                document.getElementById('kategori_pengunjung').value = formState.kategori_pengunjung;
+
+                // Restore kategori visual selection
+                const kategoriItem = document.querySelector(`[data-radio="kategori"][data-value="${formState.kategori_pengunjung}"]`);
+                if (kategoriItem) {
+                    kategoriItem.click();
+                }
+            }
+            if (formState.nama_perusahaan) document.getElementById('nama_perusahaan').value = formState.nama_perusahaan;
+            if (formState.posisi_jabatan) document.getElementById('posisi_jabatan').value = formState.posisi_jabatan;
+            if (formState.jenis_bisnis_lainnya) document.getElementById('jenis_bisnis_lainnya').value = formState.jenis_bisnis_lainnya;
+
+            // Restore business_type selections
+            if (formState.business_type && formState.business_type.length > 0) {
+                formData.business_type = formState.business_type;
+                formState.business_type.forEach(value => {
+                    const item = document.querySelector(`[data-checkbox="business_type"][data-value="${value}"]`);
+                    if (item) {
+                        item.classList.add('selected');
+                    }
+                });
+                updateArrayInputs('business_type');
+            }
+
+            // Restore to saved step
+            const step = parseInt(savedStep);
+            if (step === 2) {
+                document.getElementById('step1').classList.remove('active');
+                document.getElementById('step2').classList.add('active');
+                currentStep = 2;
+                updateProgress();
+            }
+        } catch (e) {
+            console.error('Error restoring form state:', e);
+            clearFormState();
+        }
+    }
+}
+
+// Clear form state from localStorage
+function clearFormState() {
+    localStorage.removeItem(FORM_STATE_KEY);
+    localStorage.removeItem(FORM_DATA_KEY);
+}
+
 // Update progress bar
 function updateProgress() {
     const progress = (currentStep / totalSteps) * 100;
@@ -404,10 +519,17 @@ function updateProgress() {
 // Navigate to next step
 function nextStep() {
     if (validateStep1()) {
+        // Save Step 1 data to localStorage
+        saveFormState();
+
         document.getElementById('step1').classList.remove('active');
         document.getElementById('step2').classList.add('active');
         currentStep = 2;
         updateProgress();
+
+        // Save current step
+        localStorage.setItem(FORM_STATE_KEY, currentStep);
+
         window.scrollTo(0, 0);
     }
 }
@@ -418,6 +540,10 @@ function prevStep() {
     document.getElementById('step1').classList.add('active');
     currentStep = 1;
     updateProgress();
+
+    // Save current step
+    localStorage.setItem(FORM_STATE_KEY, currentStep);
+
     window.scrollTo(0, 0);
 }
 
@@ -584,7 +710,7 @@ function validateStep1() {
     }
 
     // Validasi Jenis Bisnis
-    if (!formData.jenis_bisnis || formData.jenis_bisnis.length === 0) {
+    if (!formData.business_type || formData.business_type.length === 0) {
         const errorDiv = document.getElementById('error_jenis_bisnis');
         errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + t('error_jenis_bisnis_required');
         errorDiv.classList.add('show');
@@ -594,7 +720,7 @@ function validateStep1() {
     }
 
     // Validasi input "Lainnya" jika dipilih
-    if (formData.jenis_bisnis && formData.jenis_bisnis.includes('lainnya')) {
+    if (formData.business_type && formData.business_type.includes('lainnya')) {
         const lainnyaInput = document.getElementById('jenis_bisnis_lainnya').value.trim();
         if (!lainnyaInput) {
             showError('jenis_bisnis_lainnya', 'error_jenis_bisnis_lainnya');
@@ -625,18 +751,65 @@ document.querySelectorAll('[data-radio]').forEach(item => {
         const radioName = this.dataset.radio;
         const value = this.dataset.value;
 
-        // Remove selected from siblings
-        document.querySelectorAll(`[data-radio="${radioName}"]`).forEach(sibling => {
-            sibling.classList.remove('selected');
-        });
+        const maxSelect = this.dataset.max ? parseInt(this.dataset.max) : 1;
 
-        // Add selected to clicked
-        this.classList.add('selected');
+        // Single Select Logic (Default Radio Behavior)
+        if (maxSelect === 1) {
+            // Remove selected from siblings
+            document.querySelectorAll(`[data-radio="${radioName}"]`).forEach(sibling => {
+                sibling.classList.remove('selected');
+            });
 
-        // Update hidden input
-        const hiddenInput = document.getElementById(radioName === 'kategori' ? 'kategori_pengunjung' : radioName);
-        if (hiddenInput) {
-            hiddenInput.value = value;
+            // Add selected to clicked
+            this.classList.add('selected');
+
+            // Update hidden input
+            const hiddenInput = document.getElementById(radioName === 'kategori' ? 'kategori_pengunjung' : radioName + '_hidden');
+            if (hiddenInput) {
+                hiddenInput.value = value;
+                // If using array inputs for this question (although max=1), we might want to standardize
+                // But for backward compatibility with controller that expects 'question_X' as string for single
+                // we keep single hidden input.
+            }
+
+            // Clear errors (generic)
+            const errorDiv = document.getElementById('error_' + radioName);
+            if (errorDiv) {
+                errorDiv.classList.remove('show');
+                errorDiv.innerHTML = '';
+            }
+        }
+        // Multi Select Logic for Radio (behaves like checkbox)
+        else {
+            if (this.classList.contains('selected')) {
+                this.classList.remove('selected');
+                const index = formData[radioName]?.indexOf(value);
+                if (index > -1) {
+                    formData[radioName].splice(index, 1);
+                }
+            } else {
+                // Check max limit
+                if (formData[radioName] && formData[radioName].length >= maxSelect) {
+                    alert(t('alert_max').replace('{max}', maxSelect));
+                    return;
+                }
+
+                this.classList.add('selected');
+                if (!formData[radioName]) {
+                    formData[radioName] = [];
+                }
+                formData[radioName].push(value);
+            }
+
+            // Create/update hidden inputs for array data
+            updateArrayInputs(radioName);
+
+            // Clear errors (generic)
+            const errorDiv = document.getElementById('error_' + radioName.replace('question_', ''));
+            if (errorDiv) {
+                errorDiv.classList.remove('show');
+                errorDiv.innerHTML = '';
+            }
         }
 
         // Clear error untuk kategori pengunjung
@@ -662,7 +835,7 @@ document.querySelectorAll('[data-radio]').forEach(item => {
 
 
         // Handle Lainnya input for jenis_bisnis
-        if (radioName === 'jenis_bisnis') {
+        if (radioName === 'business_type') {
             const lainnyaInput = document.getElementById('lainnyaInput');
             if (value === 'lainnya') {
                 lainnyaInput.classList.add('show');
@@ -743,7 +916,7 @@ document.querySelectorAll('[data-checkbox]').forEach(item => {
             }
 
             // Handle Lainnya input visibility for multi-select
-            if (checkboxName === 'jenis_bisnis' && value === 'lainnya') {
+            if (checkboxName === 'business_type' && value === 'lainnya') {
                 const lainnyaInput = document.getElementById('lainnyaInput');
                 if (this.classList.contains('selected')) {
                     lainnyaInput.classList.add('show');
@@ -849,11 +1022,92 @@ function toggleConsent() {
 
 // Form Submit Validation for Consent
 document.getElementById('multiStepForm').addEventListener('submit', function (e) {
+    // Collect data from dynamic questions first
+    collectDynamicQuestionData();
+
+    // Then validate consent
     const consentInput = document.getElementById('consentInput');
     if (consentInput.value !== '1') {
         e.preventDefault();
         document.getElementById('consentError').style.display = 'block';
         // Scroll to error
         document.getElementById('consentCheckbox').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+        // Clear form state from localStorage on successful submit
+        clearFormState();
     }
 });
+
+// Function to collect data from dynamic questions
+function collectDynamicQuestionData() {
+    console.log('Collecting dynamic question data...');
+
+    // Remove existing dynamic question inputs
+    document.querySelectorAll('input[name^="question_"]').forEach(el => {
+        if (el.type === 'hidden' && el.dataset.dynamic) {
+            el.remove();
+        }
+    });
+
+    // Collect from radio buttons (dynamic questions)
+    document.querySelectorAll('[data-radio^="question_"]').forEach(item => {
+        if (item.classList.contains('selected')) {
+            const questionName = item.dataset.radio;
+            const value = item.dataset.value;
+
+            console.log('Radio selected:', questionName, '=', value);
+
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = questionName;
+            input.value = value;
+            input.dataset.dynamic = 'true';
+            document.getElementById('multiStepForm').appendChild(input);
+        }
+    });
+
+    // Collect from checkboxes (dynamic questions)
+    const checkboxGroups = {};
+    document.querySelectorAll('[data-checkbox^="question_"]').forEach(item => {
+        if (item.classList.contains('selected')) {
+            const questionName = item.dataset.checkbox;
+            const value = item.dataset.value;
+
+            if (!checkboxGroups[questionName]) {
+                checkboxGroups[questionName] = [];
+            }
+            checkboxGroups[questionName].push(value);
+        }
+    });
+
+    // Create hidden inputs for checkbox groups
+    Object.keys(checkboxGroups).forEach(questionName => {
+        console.log('Checkbox selected:', questionName, '=', checkboxGroups[questionName]);
+        checkboxGroups[questionName].forEach(value => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = questionName + '[]';
+            input.value = value;
+            input.dataset.dynamic = 'true';
+            document.getElementById('multiStepForm').appendChild(input);
+        });
+    });
+
+    // Collect from text/number/textarea inputs (dynamic questions)
+    // These already exist in the form, just log them
+    document.querySelectorAll('input[name^="question_"]:not([type="hidden"]), textarea[name^="question_"]').forEach(input => {
+        if (input.value.trim()) {
+            console.log('Text/Number/Textarea:', input.name, '=', input.value);
+        }
+    });
+
+    // Collect from dropdown/select (dynamic questions)
+    document.querySelectorAll('select[name^="question_"]').forEach(select => {
+        if (select.value) {
+            console.log('Dropdown:', select.name, '=', select.value);
+        }
+    });
+
+    console.log('Dynamic question data collection complete');
+}
+

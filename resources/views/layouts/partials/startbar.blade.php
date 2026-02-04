@@ -40,19 +40,21 @@
                         <span>Management</span>
                     </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('users.index') }}">
-                            <i class="iconoir-group menu-icon"></i>
-                            <span>Users</span>
-                        </a>
-                    </li>
+                    @if(auth()->user() && auth()->user()->hasRole('superadmin'))
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('users.index') }}">
+                                <i class="iconoir-group menu-icon"></i>
+                                <span>Users</span>
+                            </a>
+                        </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('roles.index') }}">
-                            <i class="iconoir-shield-check menu-icon"></i>
-                            <span>Roles</span>
-                        </a>
-                    </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('roles.index') }}">
+                                <i class="iconoir-shield-check menu-icon"></i>
+                                <span>Roles</span>
+                            </a>
+                        </li>
+                    @endif
 
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('languages.index') }}">

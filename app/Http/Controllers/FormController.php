@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use App\Queries\QVisitorCategory;
 use App\Models\VisitorCategoryTranslation;
 use App\Models\Languages;
+use App\Models\Question;
+use App\Models\Submission;
+use App\Models\SubmissionAnswer;
+use Illuminate\Support\Facades\DB;
 
 class FormController extends Controller
 {
@@ -16,9 +20,9 @@ class FormController extends Controller
     {
         // Ambil bahasa dari berbagai sumber dengan prioritas
         $lang = $request->input('lang')
-                ?? $request->cookie('selected_language')
-                ?? session('selected_language')
-                ?? 'en';
+            ?? $request->cookie('selected_language')
+            ?? session('selected_language')
+            ?? 'en';
 
         $params = (object) [
             'search_value' => $request->search_value ?? null,
@@ -36,11 +40,22 @@ class FormController extends Controller
             $master_visitor_category_translations = $master_visitor_category_translations->merge($translations);
         }
 
+        // Load questions yang aktif untuk Step 2
+        $questions = Question::where('is_active', true)
+            ->with([
+                'refTypeQuestion',
+                'refQuestionTranslations',
+                'refQuestionOptions.refQuestionOptionTranslations'
+            ])
+            ->orderBy('urutan')
+            ->get();
+
         return view('form.index', [
             'visitors' => $visitors['items'],
             'languages' => $languages,
             'current_lang' => $lang,
             'master_visitor_category_translations' => $master_visitor_category_translations,
+            'questions' => $questions,
         ]);
     }
     /**
@@ -48,31 +63,84 @@ class FormController extends Controller
      */
     public function submit(Request $request)
     {
+        DB::beginTransaction();
         try {
-            // Prepare data
-            $params = [
-                'survey_id' => $request->input('survey_id'), // Optional
+            // Step 1: Save main submission data
+            $submission = Submission::create([
+                'survey_id' => 1, // Default survey ID
                 'full_name' => $request->input('full_name'),
                 'phone_number' => $request->input('phone_number'),
                 'email' => $request->input('email'),
                 'visitor_category_id' => $request->input('kategori_pengunjung'),
-                'company_name' => $request->input('company_name'),
-                'job_title' => $request->input('job_title'),
-                'business_type' => $request->input('business_type'),
-            ];
+                'kategori_pengunjung' => $request->input('kategori_pengunjung'),
+                'nama_perusahaan' => $request->input('company_name'),
+                'posisi_jabatan' => $request->input('job_title'),
+                'jenis_bisnis' => is_array($request->input('business_type'))
+                    ? json_encode($request->input('business_type'))
+                    : $request->input('business_type'),
+                'jenis_bisnis_lainnya' => $request->input('jenis_bisnis_lainnya'),
+                'consent' => $request->input('consent', 0),
+            ]);
 
-            // Save submission
-            $result = QSubmission::saveData($params);
+            // Step 2: Save dynamic question answers
+            $questionInputs = $request->all();
+
+            foreach ($questionInputs as $key => $value) {
+                if (strpos($key, 'question_') === 0 && !empty($value)) {
+                    $questionId = str_replace('question_', '', $key);
+
+                    if (!is_numeric($questionId)) {
+                        continue;
+                    }
+
+                    $question = Question::find($questionId);
+                    if (!$question) {
+                        continue;
+                    }
+
+                    // Handle different answer types
+                    if (is_array($value)) {
+                        // Multiple answers (checkbox)
+                        foreach ($value as $optionId) {
+                            SubmissionAnswer::create([
+                                'submission_id' => $submission->id,
+                                'question_id' => $questionId,
+                                'question_option_id' => $optionId,
+                                'answer_text' => null,
+                            ]);
+                        }
+                    } elseif (in_array($question->refTypeQuestion->code, ['radio', 'dropdown', 'checkbox_card'])) {
+                        // Single option answer
+                        SubmissionAnswer::create([
+                            'submission_id' => $submission->id,
+                            'question_id' => $questionId,
+                            'question_option_id' => $value,
+                            'answer_text' => null,
+                        ]);
+                    } else {
+                        // Text/textarea/number answer
+                        SubmissionAnswer::create([
+                            'submission_id' => $submission->id,
+                            'question_id' => $questionId,
+                            'question_option_id' => null,
+                            'answer_text' => $value,
+                        ]);
+                    }
+                }
+            }
+
+            DB::commit();
 
             return redirect()
                 ->back()
                 ->with('success', 'Data berhasil dikirim! Terima kasih telah mengisi form.');
 
         } catch (\Exception $e) {
+            DB::rollBack();
             return redirect()
                 ->back()
                 ->withInput()
-                ->with('error', $e->getMessage());
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 }

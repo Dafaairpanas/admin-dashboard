@@ -13,6 +13,7 @@ class QuestionOptionTranslation extends Model
         'question_option_id',
         'language_code',
         'option_text',
+        'description',
     ];
 
     public function refQuestionOption()
