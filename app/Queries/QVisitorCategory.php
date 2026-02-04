@@ -41,16 +41,25 @@ class QVisitorCategory
 
     public static function getAll($params)
     {
-        $data = Model::whereNull('deleted_at')->get();
+        $lang = $params->lang ?? 'en';
+
+        $data = Model::with(['refVisitorCategoryTranslations'])
+            ->whereNull('deleted_at')
+            ->get();
+
         return [
-            'items' => $data->collect()
-                ->transform(function ($items) {
-                    return [
-                        'id' => $items->id,
-                        'name' => $items->name,
-                        'created_at' => Carbon::parse($items->created_at)->format('d-m-Y H:i:s'),
-                    ];
-                })
+            'items' => $data->map(function ($item) use ($lang) {
+                // Cari translasi berdasarkan bahasa
+                $translation = $item->refVisitorCategoryTranslations
+                    ->firstWhere('language_code', $lang);
+
+                return [
+                    'id' => $item->id,
+                    'name' => $translation ? $translation->name : $item->name,
+                    'has_additional_fields' => $item->has_additional_fields,
+                    'created_at' => Carbon::parse($item->created_at)->format('d-m-Y H:i:s'),
+                ];
+            })
         ];
     }
 

@@ -4,23 +4,38 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoutingController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\UserController;
+use App\Models\Languages;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
 
 require __DIR__ . '/auth.php';
 
 // Form routes untuk user/visitor (tanpa auth)
 Route::get('/', [FormController::class, 'index'])->name('form.index');
 Route::post('/form/submit', [FormController::class, 'submit'])->name('form.submit');
+// Route::post('/switch-language', function(Request $request) {
+//     $lang = $request->input('lang', 'en');
+
+//     // Validasi bahasa yang tersedia
+//     $validLangs = Languages::where('is_active', 1)
+//         ->pluck('code')
+//         ->toArray();
+
+//     if (!in_array($lang, $validLangs)) {
+//         return response()->json([
+//             'success' => false,
+//             'message' => 'Invalid language'
+//         ], 400);
+//     }
+
+//     // Simpan ke session
+//     session(['selected_language' => $lang]);
+
+//     // Return dengan cookie
+//     return response()->json([
+//         'success' => true,
+//         'lang' => $lang
+//     ])->cookie('selected_language', $lang, 60 * 24 * 90); // 90 hari
+// })->name('switch.language');
 
 // Admin routes dengan prefix /admin dan middleware auth
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {

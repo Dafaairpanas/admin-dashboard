@@ -1,3 +1,4 @@
+let visitorTranslations = window.visitorTranslations || {};
 let currentStep = 1;
 const totalSteps = 2;
 
@@ -87,7 +88,7 @@ const translations = {
         btn_kirim: 'Kirim',
 
         // Footer
-        footer_credit: 'Dibuat oleh Rajawali Perkasa Furniture',
+        footer_credit: 'Dibuat oleh IT Rajawali Perkasa Furniture',
 
         // Validation
         alert_fill_fields: 'Mohon lengkapi Nama, WhatsApp, dan Email',
@@ -227,16 +228,44 @@ function switchLanguage(lang) {
     // Simpan ke localStorage
     localStorage.setItem('selectedLanguage', lang);
 
+    // Kirim ke backend untuk sync session/cookie
+    // fetch('/switch-language', {
+    //     method: 'POST',
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+    //     },
+    //     body: JSON.stringify({ lang: lang })
+    // })
+    // .then(response => response.json())
+    // .then(data => {
+    //     console.log('Language switched to:', lang);
+    // })
+    // .catch(error => {
+    //     console.error('Error switching language:', error);
+    // });
+
     // Update flag
     updateFlag(lang);
 
-    // Update all translatable elements
+    // Update all translatable elements (static content)
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.dataset.i18n;
         if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
             el.placeholder = t(key);
         } else {
             el.innerHTML = t(key);
+        }
+    });
+
+    // Update visitor categories (dynamic content from database)
+    updateVisitorCategories(lang);
+
+    // Update visible error messages
+    document.querySelectorAll('.error-message.show').forEach(el => {
+        const key = el.dataset.i18nError;
+        if (key) {
+            el.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + t(key);
         }
     });
 
@@ -277,6 +306,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const langOptions = document.querySelectorAll('.lang-option');
 
     if (!langDropdown || !selectedLang) return;
+
+    // Check saved language or get from meta tag
+    const savedLang = localStorage.getItem('selectedLanguage');
+    const metaLang = document.querySelector('meta[name="current-lang"]');
+
+    if (savedLang) {
+        currentLang = savedLang;
+    } else if (metaLang) {
+        currentLang = metaLang.getAttribute('content');
+        localStorage.setItem('selectedLanguage', currentLang);
+    }
+
 
     // Set initial language
     updateFlag(currentLang);
@@ -334,6 +375,22 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+// Function to update visitor categories based on language
+function updateVisitorCategories(lang) {
+
+    document.querySelectorAll('[data-translatable^="visitor_"]').forEach(el => {
+        const visitorId = el.dataset.translatable.replace('visitor_', '');
+        console.log('Processing visitor ID:', visitorId);
+
+        if (visitorTranslations[visitorId] && visitorTranslations[visitorId][lang]) {
+            console.log('Changing text to:', visitorTranslations[visitorId][lang]);
+            el.textContent = visitorTranslations[visitorId][lang];
+        } else {
+            console.warn('Translation not found for visitor ID:', visitorId, 'language:', lang);
+        }
+    });
+}
 
 // Update progress bar
 function updateProgress() {
@@ -424,36 +481,36 @@ function showError(fieldId, messageKey) {
 }
 
 // Modify switchLanguage to update errors too
-function switchLanguage(lang) {
-    currentLang = lang;
+// function switchLanguage(lang) {
+//     currentLang = lang;
 
-    // Simpan ke localStorage
-    localStorage.setItem('selectedLanguage', lang);
+//     // Simpan ke localStorage
+//     localStorage.setItem('selectedLanguage', lang);
 
-    // Update flag
-    updateFlag(lang);
+//     // Update flag
+//     updateFlag(lang);
 
-    // Update all translatable elements
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.dataset.i18n;
-        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-            el.placeholder = t(key);
-        } else {
-            el.innerHTML = t(key);
-        }
-    });
+//     // Update all translatable elements
+//     document.querySelectorAll('[data-i18n]').forEach(el => {
+//         const key = el.dataset.i18n;
+//         if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+//             el.placeholder = t(key);
+//         } else {
+//             el.innerHTML = t(key);
+//         }
+//     });
 
-    // Update visible error messages
-    document.querySelectorAll('.error-message.show').forEach(el => {
-        const key = el.dataset.i18nError;
-        if (key) {
-            el.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + t(key);
-        }
-    });
+//     // Update visible error messages
+//     document.querySelectorAll('.error-message.show').forEach(el => {
+//         const key = el.dataset.i18nError;
+//         if (key) {
+//             el.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + t(key);
+//         }
+//     });
 
-    // Update progress text
-    updateProgress();
-}
+//     // Update progress text
+//     updateProgress();
+// }
 
 // Validate Step 1
 function validateStep1() {
@@ -593,13 +650,16 @@ document.querySelectorAll('[data-radio]').forEach(item => {
 
         // Handle B2B conditional fields
         if (radioName === 'kategori') {
+            const hasExtra = this.dataset.hasExtra === '1';
             const b2bFields = document.getElementById('b2bFields');
-            if (value === 'b2b') {
+
+            if (hasExtra) {
                 b2bFields.classList.add('show');
             } else {
                 b2bFields.classList.remove('show');
             }
         }
+
 
         // Handle Lainnya input for jenis_bisnis
         if (radioName === 'jenis_bisnis') {
@@ -628,7 +688,7 @@ document.querySelectorAll('[data-checkbox]').forEach(item => {
                 formData[checkboxName] = [];
 
                 // Handle Lainnya
-                if (checkboxName === 'jenis_bisnis') {
+                if (checkboxName === 'business_type') {
                     document.getElementById('lainnyaInput').classList.remove('show');
                 }
             } else {
@@ -642,7 +702,7 @@ document.querySelectorAll('[data-checkbox]').forEach(item => {
                 formData[checkboxName] = [value];
 
                 // Clear error untuk jenis bisnis
-                if (checkboxName === 'jenis_bisnis') {
+                if (checkboxName === 'business_type') {
                     const errorDiv = document.getElementById('error_jenis_bisnis');
                     if (errorDiv) {
                         errorDiv.classList.remove('show');
@@ -651,7 +711,7 @@ document.querySelectorAll('[data-checkbox]').forEach(item => {
                 }
 
                 // Handle Lainnya visibility
-                if (checkboxName === 'jenis_bisnis') {
+                if (checkboxName === 'business_type') {
                     const lainnyaInput = document.getElementById('lainnyaInput');
                     if (value === 'lainnya') {
                         lainnyaInput.classList.add('show');

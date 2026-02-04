@@ -12,5 +12,16 @@ class MasterVisitorCategory extends Model
     protected $table = 'master_visitor_categories';
     protected $fillable = [
         'name',
+        'has_additional_fields',
     ];
+
+    public function refVisitorCategoryTranslations()
+    {
+        return $this->hasMany(VisitorCategoryTranslation::class, 'visitor_category_id', 'id');
+    }
+
+    public function refVisitorCategoryTranslation($lang)
+    {
+        return $this->hasOne(VisitorCategoryTranslation::class, 'visitor_category_id', 'id')->where('language_code', $lang);
+    }
 }
