@@ -146,33 +146,53 @@
 
                                 @elseif($question->refTypeQuestion->code == 'radio')
                                     {{-- Radio Buttons --}}
-                                    @foreach($question->refQuestionOptions as $opt)
-                                        @php
-                                            $isSelected = $answers->contains('question_option_id', $opt->id);
-                                            $optionTranslation = $opt->refQuestionOptionTranslation($defaultLang)->first();
-                                        @endphp
-                                        <div class="option-item {{ $isSelected ? 'selected' : '' }}" style="pointer-events: none;">
-                                            <div class="option-radio"></div>
-                                            <span class="option-label">
-                                                {{ $optionTranslation->option_text ?? $opt->option_text }}
-                                            </span>
-                                        </div>
-                                    @endforeach
+                                    <div style="display: grid; grid-template-columns: repeat({{ $question->grid_columns ?? 1 }}, 1fr); gap: 0.5rem;">
+                                        @foreach($question->refQuestionOptions as $opt)
+                                            @php
+                                                $isSelected = $answers->contains('question_option_id', $opt->id);
+                                                $optionTranslation = $opt->refQuestionOptionTranslation($defaultLang)->first();
+                                            @endphp
+                                            <div class="option-item {{ $isSelected ? 'selected' : '' }}" style="pointer-events: none;">
+                                                <div class="option-radio">
+                                                    @if($isSelected)
+                                                        <div style="width: 8px; height: 8px; background: white; border-radius: 50%;"></div>
+                                                    @endif
+                                                </div>
+                                                <span class="option-label">
+                                                    {{ $optionTranslation->option_text ?? $opt->option_text }}
+                                                </span>
+                                            </div>
+                                        @endforeach
+                                    </div>
 
                                 @elseif($question->refTypeQuestion->code == 'checkbox')
                                     {{-- Checkboxes --}}
-                                    @foreach($question->refQuestionOptions as $opt)
-                                        @php
-                                            $isSelected = $answers->contains('question_option_id', $opt->id);
-                                            $optionTranslation = $opt->refQuestionOptionTranslation($defaultLang)->first();
-                                        @endphp
-                                        <div class="option-item {{ $isSelected ? 'selected' : '' }}" style="pointer-events: none;">
-                                            <div class="option-checkbox"></div>
-                                            <span class="option-label">
-                                                {{ $optionTranslation->option_text ?? $opt->option_text }}
-                                            </span>
-                                        </div>
-                                    @endforeach
+                                    <div style="display: grid; grid-template-columns: repeat({{ $question->grid_columns ?? 1 }}, 1fr); gap: 0.5rem;">
+                                        @foreach($question->refQuestionOptions as $opt)
+                                            @php
+                                                $isSelected = $answers->contains('question_option_id', $opt->id);
+                                                $optionTranslation = $opt->refQuestionOptionTranslation($defaultLang)->first();
+                                                $descriptionText = $optionTranslation->description ?? null;
+                                            @endphp
+                                            <div class="option-item {{ $isSelected ? 'selected' : '' }}" style="pointer-events: none;">
+                                                <div class="option-checkbox">
+                                                    @if($isSelected)
+                                                        <i class="fas fa-check" style="color: white; font-size: 12px;"></i>
+                                                    @endif
+                                                </div>
+                                                <div style="flex: 1;">
+                                                    <span class="option-label">
+                                                        {{ $optionTranslation->option_text ?? $opt->option_text }}
+                                                    </span>
+                                                    @if($descriptionText)
+                                                        <div class="option-description" style="font-size: 0.875rem; color: #666; margin-top: 0.25rem;">
+                                                            {{ $descriptionText }}
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
 
                                 @elseif($question->refTypeQuestion->code == 'dropdown')
                                     {{-- Dropdown --}}
@@ -190,21 +210,26 @@
 
                                 @elseif($question->refTypeQuestion->code == 'checkbox_card')
                                     {{-- Checkbox Cards --}}
-                                    <div class="checkbox-card-grid">
+                                    <div class="furniture-cards" style="display: grid; grid-template-columns: repeat({{ $question->grid_columns ?? 1 }}, 1fr); gap: 0.5rem;">
                                         @foreach($question->refQuestionOptions as $opt)
                                             @php
                                                 $isSelected = $answers->contains('question_option_id', $opt->id);
                                                 $optionTranslation = $opt->refQuestionOptionTranslation($defaultLang)->first();
+                                                $descriptionText = $optionTranslation->description ?? null;
                                             @endphp
-                                            <div class="checkbox-card {{ $isSelected ? 'selected' : '' }}" style="pointer-events: none;">
+                                            <div class="furniture-card h-100 {{ $isSelected ? 'selected' : '' }}" style="pointer-events: none;">
                                                 <div class="d-flex align-items-start">
-                                                    <div class="option-checkbox me-3"></div>
+                                                    <div class="option-checkbox me-3" style="{{ $isSelected ? 'background-color: var(--primary-orange); border-color: var(--primary-orange);' : '' }}">
+                                                        @if($isSelected)
+                                                            <i class="fas fa-check" style="color: white; font-size: 12px;"></i>
+                                                        @endif
+                                                    </div>
                                                     <div>
                                                         <div class="card-title">
                                                             {{ $optionTranslation->option_text ?? $opt->option_text }}
                                                         </div>
-                                                        @if($opt->description)
-                                                            <div class="card-description">{{ $opt->description }}</div>
+                                                        @if($descriptionText)
+                                                            <div class="card-desc">{{ $descriptionText }}</div>
                                                         @endif
                                                     </div>
                                                 </div>

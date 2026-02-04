@@ -368,7 +368,7 @@ body {
     padding: 16px;
     border: 2px solid var(--border-gray);
     border-radius: 12px;
-    margin-bottom: 12px;
+    margin-bottom: 0;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     animation: fadeIn 0.4s ease-out;
@@ -455,14 +455,7 @@ body {
     animation: popIn 0.3s ease-out;
 }
 
-.option-item.selected .option-checkbox::after {
-    content: '\f00c';
-    font-family: 'Font Awesome 6 Free';
-    font-weight: 900;
-    color: white;
-    font-size: 12px;
-    animation: popIn 0.3s ease-out;
-}
+/* Checkbox icon dihandle oleh JavaScript, tidak perlu CSS ::after */
 
 @keyframes popIn {
     0% {

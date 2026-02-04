@@ -48,7 +48,7 @@
 
                 @elseif($q->refTypeQuestion->code == 'checkbox_card')
                     {{-- Checkbox Cards (untuk furniture, dll) --}}
-                    <div class="furniture-cards" style="display: grid; grid-template-columns: repeat({{ $q->grid_columns ?? 1 }}, 1fr); gap: 1rem;">
+                    <div class="furniture-cards" style="display: grid; grid-template-columns: repeat({{ $q->grid_columns ?? 1 }}, 1fr); gap: 0.5rem;">
                         @foreach ($q->refQuestionOptions as $opt)
                             <div class="furniture-card h-100" 
                                  data-checkbox="question_{{ $q->id }}" 
@@ -81,7 +81,7 @@
 
                 @elseif($q->refTypeQuestion->code == 'radio')
                     {{-- Radio Buttons --}}
-                    <div style="display: grid; grid-template-columns: repeat({{ $q->grid_columns ?? 1 }}, 1fr); gap: 1rem;">
+                    <div style="display: grid; grid-template-columns: repeat({{ $q->grid_columns ?? 1 }}, 1fr); gap: 0.5rem;">
                         @foreach ($q->refQuestionOptions as $opt)
                             <div class="option-item" 
                                  data-radio="question_{{ $q->id }}"
@@ -102,7 +102,7 @@
 
                 @elseif($q->refTypeQuestion->code == 'checkbox')
                     {{-- Checkboxes --}}
-                    <div style="display: grid; grid-template-columns: repeat({{ $q->grid_columns ?? 1 }}, 1fr); gap: 1rem;">
+                    <div style="display: grid; grid-template-columns: repeat({{ $q->grid_columns ?? 1 }}, 1fr); gap: 0.5rem;">
                         @foreach ($q->refQuestionOptions as $opt)
                             <div class="option-item" 
                                  data-checkbox="question_{{ $q->id }}"
