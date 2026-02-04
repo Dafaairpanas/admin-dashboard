@@ -852,6 +852,7 @@ document.querySelectorAll('[data-checkbox]').forEach(item => {
         const checkboxName = this.dataset.checkbox;
         const value = this.dataset.value;
         const maxSelect = this.dataset.max ? parseInt(this.dataset.max) : null;
+        const checkbox = this.querySelector('.option-checkbox');
 
         // For single select (max=1), behave like radio - deselect others first
         if (maxSelect === 1) {
@@ -859,6 +860,13 @@ document.querySelectorAll('[data-checkbox]').forEach(item => {
             if (this.classList.contains('selected')) {
                 this.classList.remove('selected');
                 formData[checkboxName] = [];
+
+                // Update checkbox visual
+                if (checkbox) {
+                    checkbox.style.backgroundColor = '';
+                    checkbox.style.borderColor = '';
+                    checkbox.innerHTML = '';
+                }
 
                 // Handle Lainnya
                 if (checkboxName === 'business_type') {
@@ -868,11 +876,24 @@ document.querySelectorAll('[data-checkbox]').forEach(item => {
                 // Deselect all siblings first
                 document.querySelectorAll(`[data-checkbox="${checkboxName}"]`).forEach(sibling => {
                     sibling.classList.remove('selected');
+                    const siblingCheckbox = sibling.querySelector('.option-checkbox');
+                    if (siblingCheckbox) {
+                        siblingCheckbox.style.backgroundColor = '';
+                        siblingCheckbox.style.borderColor = '';
+                        siblingCheckbox.innerHTML = '';
+                    }
                 });
 
                 // Select this one
                 this.classList.add('selected');
                 formData[checkboxName] = [value];
+
+                // Update checkbox visual
+                if (checkbox) {
+                    checkbox.style.backgroundColor = 'var(--primary-orange)';
+                    checkbox.style.borderColor = 'var(--primary-orange)';
+                    checkbox.innerHTML = '<i class="fas fa-check" style="color: white; font-size: 12px;"></i>';
+                }
 
                 // Clear error untuk jenis bisnis
                 if (checkboxName === 'business_type') {
@@ -901,6 +922,14 @@ document.querySelectorAll('[data-checkbox]').forEach(item => {
                 if (index > -1) {
                     formData[checkboxName].splice(index, 1);
                 }
+
+                // Update checkbox visual
+                if (checkbox) {
+                    checkbox.style.backgroundColor = '';
+                    checkbox.style.borderColor = '';
+                    checkbox.innerHTML = '';
+                }
+
             } else {
                 // Check max limit
                 if (maxSelect && formData[checkboxName]?.length >= maxSelect) {
@@ -913,6 +942,13 @@ document.querySelectorAll('[data-checkbox]').forEach(item => {
                     formData[checkboxName] = [];
                 }
                 formData[checkboxName].push(value);
+
+                // Update checkbox visual
+                if (checkbox) {
+                    checkbox.style.backgroundColor = 'var(--primary-orange)';
+                    checkbox.style.borderColor = 'var(--primary-orange)';
+                    checkbox.innerHTML = '<i class="fas fa-check" style="color: white; font-size: 12px;"></i>';
+                }
             }
 
             // Handle Lainnya input visibility for multi-select
@@ -953,39 +989,6 @@ function updateArrayInputs(name) {
     }
 }
 
-// Furniture card handler (same as checkbox but different styling)
-document.querySelectorAll('.furniture-card').forEach(card => {
-    card.addEventListener('click', function () {
-        const value = this.dataset.value;
-        const checkbox = this.querySelector('.option-checkbox');
-
-        if (this.classList.contains('selected')) {
-            this.classList.remove('selected');
-            const index = formData.kebutuhan_furniture.indexOf(value);
-            if (index > -1) {
-                formData.kebutuhan_furniture.splice(index, 1);
-            }
-        } else {
-            this.classList.add('selected');
-            formData.kebutuhan_furniture.push(value);
-        }
-
-        // Update checkbox visual
-        if (checkbox) {
-            if (this.classList.contains('selected')) {
-                checkbox.style.backgroundColor = 'var(--primary-orange)';
-                checkbox.style.borderColor = 'var(--primary-orange)';
-                checkbox.innerHTML = '<i class="fas fa-check" style="color: white; font-size: 12px;"></i>';
-            } else {
-                checkbox.style.backgroundColor = '';
-                checkbox.style.borderColor = '';
-                checkbox.innerHTML = '';
-            }
-        }
-
-        updateArrayInputs('kebutuhan_furniture');
-    });
-});
 
 // Auto-resize textarea (max 6 rows)
 document.querySelectorAll('.auto-resize').forEach(textarea => {

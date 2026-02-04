@@ -17,8 +17,8 @@ class MasterDataSeeder extends Seeder
     public function run()
     {
         // 1. Languages
-        $id = Languages::create(['code' => 'id', 'name' => 'Indonesia', 'is_default' => 0, 'is_active' => 1]);
-        $en = Languages::create(['code' => 'en', 'name' => 'English', 'is_default' => 1, 'is_active' => 1]);
+        $id = Languages::create(['code' => 'id', 'name' => 'Indonesia', 'is_default' => 0, 'is_active' => 1, 'flag' => 'images/flags/id_1770183114.png']);
+        $en = Languages::create(['code' => 'en', 'name' => 'English', 'is_default' => 1, 'is_active' => 1, 'flag' => 'images/flags/en_1770183106.png']);
 
         // 2. Types
         $types = [

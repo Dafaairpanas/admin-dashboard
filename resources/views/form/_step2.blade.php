@@ -63,15 +63,13 @@
                                             data-text-jp="{{ $opt->refQuestionOptionTranslation('jp')->first()->option_text ?? '' }}">
                                             {{ $opt->refQuestionOptionTranslation($current_lang)->first()->option_text ?? $opt->option_text }}
                                         </div>
-                                        @if ($opt->description)
-                                            @php
-                                                $desc = $opt->refQuestionOptionTranslation($current_lang)->first()->description ?? $opt->description;
-                                            @endphp
-                                            @if($desc)
-                                                <div class="card-desc">
-                                                    {{ $desc }}
-                                                </div>
-                                            @endif
+                                        @php
+                                            $desc = $opt->refQuestionOptionTranslation($current_lang)->first()->description ?? null;
+                                        @endphp
+                                        @if($desc)
+                                            <div class="card-desc">
+                                                {{ $desc }}
+                                            </div>
                                         @endif
                                     </div>
                                 </div>
@@ -111,12 +109,22 @@
                                  data-value="{{ $opt->id }}"
                                  data-max="{{ $q->max_selections ?? null }}">
                                 <div class="option-checkbox"></div>
-                                <span class="option-label"
-                                    data-text-id="{{ $opt->refQuestionOptionTranslation('id')->first()->option_text ?? '' }}"
-                                    data-text-en="{{ $opt->refQuestionOptionTranslation('en')->first()->option_text ?? '' }}"
-                                    data-text-jp="{{ $opt->refQuestionOptionTranslation('jp')->first()->option_text ?? '' }}">
-                                    {{ $opt->refQuestionOptionTranslation($current_lang)->first()->option_text ?? $opt->option_text }}
-                                </span>
+                                <div style="flex: 1;">
+                                    <span class="option-label"
+                                        data-text-id="{{ $opt->refQuestionOptionTranslation('id')->first()->option_text ?? '' }}"
+                                        data-text-en="{{ $opt->refQuestionOptionTranslation('en')->first()->option_text ?? '' }}"
+                                        data-text-jp="{{ $opt->refQuestionOptionTranslation('jp')->first()->option_text ?? '' }}">
+                                        {{ $opt->refQuestionOptionTranslation($current_lang)->first()->option_text ?? $opt->option_text }}
+                                    </span>
+                                    @php
+                                        $desc = $opt->refQuestionOptionTranslation($current_lang)->first()->description ?? null;
+                                    @endphp
+                                    @if($desc)
+                                        <div class="option-description" style="font-size: 0.875rem; color: #666; margin-top: 0.25rem;">
+                                            {{ $desc }}
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                         @endforeach
                     </div>
