@@ -8,6 +8,41 @@ use Illuminate\Support\Facades\DB;
 
 class QSubmission
 {
+    public static function getAllData($params)
+    {
+        $data = Model::where(function ($query) use ($params) {
+            if ($params->search_value) {
+                $query->where('full_name', 'like', '%' . $params->search_value . '%')
+                    ->orWhere('phone_number', 'like', '%' . $params->search_value . '%')
+                    ->orWhere('email', 'like', '%' . $params->search_value . '%');
+            }
+        })
+            ->whereNull('deleted_at')
+            ->orderBy('created_at', 'desc')
+            ->paginate($params->show_data ?? 15);
+
+        return [
+            'items' => $data->getCollection()
+                ->transform(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'full_name' => $item->full_name,
+                        'email' => $item->email,
+                        'phone_number' => $item->phone_number,
+                        'visitor_category_name' => $item->refMasterVisitorCategory->name ?? null,
+                        'company_name' => $item->company_name,
+                        'created_at' => Carbon::parse($item->created_at)->format('d-m-Y H:i:s'),
+                    ];
+                }),
+            'attributes' => [
+                'total' => $data->total(),
+                'page' => $data->currentPage(),
+                'from' => $data->firstItem(),
+                'perPage' => $data->perPage(),
+                'lastPage' => $data->lastPage(),
+            ]
+        ];
+    }
     public static function saveData($params)
     {
         DB::beginTransaction();

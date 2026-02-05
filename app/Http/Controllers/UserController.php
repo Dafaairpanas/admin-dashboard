@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Queries\QUser;
+use App\Queries\QRole;
 
 class UserController extends Controller
 {
@@ -16,12 +17,11 @@ class UserController extends Controller
         ];
 
         $data = QUser::getAllData($params);
-        $roles = \App\Models\Role::all();
+        $roles = QRole::getAll($params);
         return view('pages.user.index', [
             'data' => $data['items'],
             'attributes' => $data['attributes'],
-            'params' => $params,
-            'roles' => $roles
+            'roles' => $roles['items'],
         ]);
     }
 

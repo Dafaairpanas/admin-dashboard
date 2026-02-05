@@ -31,7 +31,7 @@
         <div class="header" style="justify-content: center; position: relative;">
             <div class="logo" style="margin: 0;">
                 <img src="{{ asset('images/logos/broliving.svg') }}" alt="Bro Living" class="logo-img"
-                    style="height: 40px;">
+                    style="height: 60px;">
             </div>
 
             <div class="header-right" style="position: absolute; right: 2rem;">

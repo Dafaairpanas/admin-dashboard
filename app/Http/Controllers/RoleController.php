@@ -3,45 +3,44 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Queries\QRole;
+use App\Queries\QMenu;
 use App\Models\Role;
 use Illuminate\Support\Facades\Validator;
 
 class RoleController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
     public function index(Request $request)
     {
-        $search = $request->search_value;
-        $query = Role::query();
+        $params = (object) [
+            'search_value' => $request->search_value ?? null,
+            'show_data' => $request->show_data ?? 15,
+        ];
 
-        if ($search) {
-            $query->where('name', 'like', "%{$search}%");
-        }
-
-        $roles = $query->withCount('users')->orderBy('name')->paginate($request->show_data ?? 15);
+        $data = QRole::getAllData($params);
+        $menus = QMenu::getAll($params);
 
         return view('pages.role.index', [
-            'data' => $roles,
-            'search' => $search
+            'roles' => $data['items'],
+            'menus' => $menus['items'],
+            'attributes' => $data['attributes'],
         ]);
     }
 
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:roles,name|max:255',
-            'badge_color' => 'nullable|string|max:50',
-        ]);
+        try {
+            $params = $request->all();
+            $save = QRole::saveData($params);
 
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            return redirect()->route('manage.roles.index')->with('success', 'Role created successfully');
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', $th->getMessage());
         }
-
-        Role::create([
-            'name' => $request->name,
-            'badge_color' => $request->badge_color ?? '#6c757d',
-        ]);
-
-        return redirect()->route('manage.roles.index')->with('success', 'Role created successfully');
     }
 
     public function update(Request $request, $id)
@@ -68,11 +67,6 @@ class RoleController extends Controller
     public function destroy($id)
     {
         $role = Role::findOrFail($id);
-
-        // Optional: Check if role is used by users before deleting?
-        // For now, strict delete or maybe it cascades or throws error.
-        // Assuming cascade or simple delete for now.
-
         $role->delete();
 
         return redirect()->route('manage.roles.index')->with('success', 'Role deleted successfully');

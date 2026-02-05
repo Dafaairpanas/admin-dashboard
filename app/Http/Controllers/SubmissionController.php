@@ -3,32 +3,29 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Queries\QSubmission;
 use App\Models\Submission;
 use App\Models\SubmissionAnswer;
 
 class SubmissionController extends Controller
 {
-    /**
-     * Display a listing of submissions
-     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index(Request $request)
     {
-        $search = $request->search_value;
-        $query = Submission::query()->with(['refSubmissionAnswers.refQuestion', 'refSubmissionAnswers.refQuestionOption']);
+        $params = (object) [
+            'search_value' => $request->search_value ?? null,
+            'show_data' => $request->show_data ?? 15,
+        ];
 
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('full_name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('phone_number', 'like', "%{$search}%");
-            });
-        }
-
-        $submissions = $query->orderBy('created_at', 'desc')->paginate($request->show_data ?? 15);
+        $data = QSubmission::getAllData($params);
 
         return view('pages.submission.index', [
-            'data' => $submissions,
-            'search' => $search,
+            'submissions' => $data['items'],
+            'attributes' => $data['attributes'],
         ]);
     }
 

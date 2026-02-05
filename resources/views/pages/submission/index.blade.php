@@ -57,30 +57,32 @@
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>ID</th>
+                                    <th>No</th>
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Phone</th>
+                                    <th>Visitor Category</th>
                                     <th>Company</th>
                                     <th>Submitted At</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($data as $submission)
+                                @forelse($submissions as $key => $submission)
                                     <tr>
-                                        <td>{{ $submission->id }}</td>
-                                        <td>{{ $submission->full_name }}</td>
-                                        <td>{{ $submission->email ?? '-' }}</td>
-                                        <td>{{ $submission->phone_number }}</td>
-                                        <td>{{ $submission->nama_perusahaan ?? '-' }}</td>
-                                        <td>{{ $submission->created_at->format('d M Y H:i') }}</td>
+                                        <td>{{ $attributes['from'] + $key }}</td>
+                                        <td>{{ $submission['full_name'] }}</td>
+                                        <td>{{ $submission['email'] ?? '-' }}</td>
+                                        <td>{{ $submission['phone_number'] }}</td>
+                                        <td>{{ $submission['visitor_category_name'] ?? '-' }}</td>
+                                        <td>{{ $submission['company_name'] ?? '-' }}</td>
+                                        <td>{{ $submission['created_at'] }}</td>
                                         <td>
-                                            <a href="{{ route('submissions.show', $submission->id) }}"
+                                            <a href="{{ route('submissions.show', $submission['id']) }}"
                                                 class="btn btn-sm btn-soft-primary" title="View Details">
                                                 <i class="las la-eye"></i>
                                             </a>
-                                            <form action="{{ route('submissions.destroy', $submission->id) }}" method="POST"
+                                            <form action="{{ route('submissions.destroy', $submission['id']) }}" method="POST"
                                                 class="d-inline delete-form">
                                                 @csrf
                                                 @method('DELETE')
@@ -102,7 +104,9 @@
                     </div>
 
                     <div class="mt-3">
-                        {{ $data->withQueryString()->links() }}
+                        @if($attributes['total'] > 0)
+                            <p class="mb-0">Showing {{ $attributes['from'] }} to {{ $attributes['total'] }} of {{ $attributes['total'] }} entries</p>
+                        @endif
                     </div>
                 </div>
             </div>

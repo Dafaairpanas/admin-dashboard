@@ -66,31 +66,31 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>Name</th>
-                                    <th>Color</th>
-                                    <th>Registered Users</th>
+                                    <th>Badge Color</th>
+                                    <th>Created At</th>
                                     <th class="text-end">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($data as $role)
+                                @forelse($roles as $index => $role)
                                     <tr>
-                                        <td>{{ $role->name }}</td>
+                                        <td>{{ $role['name'] }}</td>
                                         <td>
-                                            <span class="badge rounded text-white"
-                                                style="background-color: {{ $role->badge_color }};">
+                                            <span class="badge rounded-pill
+                                                {{ str_starts_with($role['badge_color'], '#') ? '' : 'bg-'.$role['badge_color'] }}"
+                                                style="{{ str_starts_with($role['badge_color'], '#') ? 'background-color: '.$role['badge_color'] : '' }}">
+                                                {{ $role['badge_color'] }}
                                             </span>
                                         </td>
-                                        <td>
-                                            <span class="badge bg-secondary">{{ $role->users_count }} Users</span>
-                                        </td>
+                                        <td>{{ $role['created_at'] }}</td>
                                         <td class="text-end">
                                             <button class="btn btn-sm btn-soft-info btn-edit" data-bs-toggle="modal"
-                                                data-bs-target="#editRoleModal" data-id="{{ $role->id }}"
-                                                data-name="{{ $role->name }}" data-badge_color="{{ $role->badge_color }}">
+                                                data-bs-target="#editRoleModal" data-id="{{ $role['id'] }}"
+                                                data-name="{{ $role['name'] }}" data-badge_color="{{ $role['badge_color'] }}">
                                                 <i class="las la-pen fs-18"></i>
                                             </button>
 
-                                            <form action="{{ route('manage.roles.destroy', $role->id) }}" method="POST"
+                                            <form action="{{ route('manage.roles.destroy', $role['id']) }}" method="POST"
                                                 class="d-inline" onsubmit="return confirm('Are you sure?')">
                                                 @csrf
                                                 @method('DELETE')
@@ -111,7 +111,9 @@
 
                     <!-- Pagination -->
                     <div class="mt-3">
-                        {{ $data->withQueryString()->links() }}
+                        @if($attributes['total'] > 0)
+                            <p class="mb-0">Showing {{ $attributes['from'] }} to {{ $attributes['total'] }} of {{ $attributes['total'] }} entries</p>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -131,11 +133,11 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">Role Name</label>
-                            <input type="text" name="name" class="form-control" required>
+                            <input type="text" name="name" placeholder="Role Name" class="form-control" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Badge Color (Hex)</label>
-                            <input type="color" name="badge_color" class="form-control form-control-color" value="#6c757d"
+                            <input type="color" name="badge_color" placeholder="Badge Color" class="form-control form-control-color" value="#6c757d"
                                 title="Choose your color">
                         </div>
                     </div>
@@ -162,11 +164,11 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">Role Name</label>
-                            <input type="text" name="name" id="edit_name" class="form-control" required>
+                            <input type="text" name="name" id="edit_name" placeholder="Role Name" class="form-control" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Badge Color (Hex)</label>
-                            <input type="color" name="badge_color" id="edit_badge_color"
+                            <input type="color" name="badge_color" placeholder="Badge Color" id="edit_badge_color"
                                 class="form-control form-control-color" title="Choose your color">
                         </div>
                     </div>
@@ -191,7 +193,7 @@
             const badge_color = button.getAttribute('data-badge_color');
 
             const form = document.getElementById('editRoleForm');
-            form.action = '/admin/roles/' + id; // Warning: Ensure prefix is correct matching web.php
+            form.action = '/manage/roles/' + id;
 
             document.getElementById('edit_name').value = name;
             document.getElementById('edit_badge_color').value = badge_color;

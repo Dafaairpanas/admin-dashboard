@@ -4,7 +4,12 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoutingController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AdminSubmissionController;
 use App\Http\Controllers\FormController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SubmissionController;
+use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\UserController;
 use App\Models\Languages;
 
@@ -13,6 +18,7 @@ require __DIR__ . '/auth.php';
 
 // Form routes untuk user/visitor (tanpa auth)
 Route::get('/', [FormController::class, 'index'])->name('form.index');
+Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
 Route::post('/form/submit', [FormController::class, 'submit'])->name('form.submit');
 Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
 Route::post('/switch-language', function (\Illuminate\Http\Request $request) {
@@ -43,47 +49,43 @@ Route::post('/switch-language', function (\Illuminate\Http\Request $request) {
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
     Route::prefix('submissions')->group(function () {
-        Route::get('/', [\App\Http\Controllers\AdminSubmissionController::class, 'index'])->name('submissions.index');
-        Route::get('/{id}/show', [\App\Http\Controllers\AdminSubmissionController::class, 'show'])->name('submissions.show');
-        Route::delete('/{id}/destroy', [\App\Http\Controllers\AdminSubmissionController::class, 'destroy'])->name('submissions.destroy');
+        Route::get('/', [AdminSubmissionController::class, 'index'])->name('submissions.index');
+        Route::get('/{id}/show', [AdminSubmissionController::class, 'show'])->name('submissions.show');
+        Route::delete('/{id}/destroy', [AdminSubmissionController::class, 'destroy'])->name('submissions.destroy');
     });
 
     Route::prefix('manage')->name('manage.')->group(function () {
         Route::prefix('users')->group(function () {
             Route::get('/', [UserController::class, 'index'])->name('users.index');
-            Route::get('/create', [UserController::class, 'create'])->name('users.create');
             Route::post('/store', [UserController::class, 'store'])->name('users.store');
-            Route::get('/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
             Route::put('/{user}/update', [UserController::class, 'update'])->name('users.update');
             Route::delete('/{user}/destroy', [UserController::class, 'destroy'])->name('users.destroy');
         });
         Route::prefix('roles')->group(function () {
-            Route::get('/', [\App\Http\Controllers\RoleController::class, 'index'])->name('roles.index');
-            Route::get('/create', [\App\Http\Controllers\RoleController::class, 'create'])->name('roles.create');
-            Route::post('/store', [\App\Http\Controllers\RoleController::class, 'store'])->name('roles.store');
-            Route::get('/{role}/edit', [\App\Http\Controllers\RoleController::class, 'edit'])->name('roles.edit');
-            Route::put('/{role}/update', [\App\Http\Controllers\RoleController::class, 'update'])->name('roles.update');
-            Route::delete('/{role}/destroy', [\App\Http\Controllers\RoleController::class, 'destroy'])->name('roles.destroy');
+            Route::get('/', [RoleController::class, 'index'])->name('roles.index');
+            Route::post('/store', [RoleController::class, 'store'])->name('roles.store');
+            Route::post('/{id}/update', [RoleController::class, 'update'])->name('roles.update');
+            Route::delete('/{id}/destroy', [RoleController::class, 'destroy'])->name('roles.destroy');
         });
     });
 
     Route::prefix('master')->name('master.')->group(function () {
         Route::prefix('languages')->group(function () {
-            Route::get('/', [\App\Http\Controllers\LanguageController::class, 'index'])->name('languages.index');
-            Route::get('/create', [\App\Http\Controllers\LanguageController::class, 'create'])->name('languages.create');
-            Route::post('/store', [\App\Http\Controllers\LanguageController::class, 'store'])->name('languages.store');
-            Route::get('/{id}/edit', [\App\Http\Controllers\LanguageController::class, 'edit'])->name('languages.edit');
-            Route::put('/{id}/update', [\App\Http\Controllers\LanguageController::class, 'update'])->name('languages.update');
-            Route::delete('/{id}/destroy', [\App\Http\Controllers\LanguageController::class, 'destroy'])->name('languages.destroy');
+            Route::get('/', [LanguageController::class, 'index'])->name('languages.index');
+            Route::get('/create', [LanguageController::class, 'create'])->name('languages.create');
+            Route::post('/store', [LanguageController::class, 'store'])->name('languages.store');
+            Route::get('/{id}/edit', [LanguageController::class, 'edit'])->name('languages.edit');
+            Route::post('/{id}/update', [LanguageController::class, 'update'])->name('languages.update');
+            Route::delete('/{id}/destroy', [LanguageController::class, 'destroy'])->name('languages.destroy');
         });
 
         Route::prefix('questions')->group(function () {
-            Route::get('/', [\App\Http\Controllers\QuestionController::class, 'index'])->name('questions.index');
-            Route::get('/create', [\App\Http\Controllers\QuestionController::class, 'create'])->name('questions.create');
-            Route::post('/store', [\App\Http\Controllers\QuestionController::class, 'store'])->name('questions.store');
-            Route::get('/{id}/edit', [\App\Http\Controllers\QuestionController::class, 'edit'])->name('questions.edit');
-            Route::put('/{id}/update', [\App\Http\Controllers\QuestionController::class, 'update'])->name('questions.update');
-            Route::delete('/{id}/destroy', [\App\Http\Controllers\QuestionController::class, 'destroy'])->name('questions.destroy');
+            Route::get('/', [QuestionController::class, 'index'])->name('questions.index');
+            Route::get('/create', [QuestionController::class, 'create'])->name('questions.create');
+            Route::post('/store', [QuestionController::class, 'store'])->name('questions.store');
+            Route::get('/{id}/edit', [QuestionController::class, 'edit'])->name('questions.edit');
+            Route::post('/{id}/update', [QuestionController::class, 'update'])->name('questions.update');
+            Route::delete('/{id}/destroy', [QuestionController::class, 'destroy'])->name('questions.destroy');
         });
     });
 

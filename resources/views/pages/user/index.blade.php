@@ -61,6 +61,7 @@
                     <table class="table mb-0">
                         <thead class="table-light">
                             <tr>
+                                <th>No.</th>
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Role</th>
@@ -69,11 +70,11 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($data as $user)
+                            @forelse($data as $index => $user)
                             <tr>
+                                <td>{{ $attributes['from'] + $index }}</td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <img src="https://ui-avatars.com/api/?name={{ urlencode($user['name']) }}&background={{ str_replace('#', '', $user['role_badge']) }}&color=ffffff&size=35" class="me-2 thumb-sm rounded-circle" alt="...">
                                         <div>
                                             <h6 class="m-0">{{ $user['name'] }}</h6>
                                         </div>
@@ -97,8 +98,6 @@
                                             data-id="{{ $user['id'] }}"
                                             data-name="{{ $user['name'] }}"
                                             data-email="{{ $user['email'] }}"
-                                            {{-- Role ID logic might need improvement to get ID from QUser transform --}}
-                                            {{-- Assuming we only have name/badge from QUser, we might need role_id --}}
                                     >
                                         <i class="las la-pen fs-18"></i>
                                     </button>
@@ -171,7 +170,7 @@
                         <select name="role_id" class="form-select" required>
                             <option value="">Select Role</option>
                             @foreach($roles as $role)
-                                <option value="{{ $role->id }}">{{ $role->name }}</option>
+                                <option value="{{ $role['id'] }}">{{ $role['name'] }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -214,7 +213,7 @@
                         <select name="role_id" id="edit_role_id" class="form-select">
                             <option value="">Select Role (Leave unchanged if not updating)</option>
                             @foreach($roles as $role)
-                                <option value="{{ $role->id }}">{{ $role->name }}</option>
+                                <option value="{{ $role['id'] }}">{{ $role['name'] }}</option>
                             @endforeach
                         </select>
                     </div>
