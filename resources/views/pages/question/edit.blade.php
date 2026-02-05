@@ -12,7 +12,7 @@
                 <div class="">
                     <ol class="breadcrumb mb-0">
                         <li class="breadcrumb-item"><a href="#">Management</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('questions.index') }}">Questions</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('master.questions.index') }}">Questions</a></li>
                         <li class="breadcrumb-item active">{{ $question ? 'Edit' : 'Create' }}</li>
                     </ol>
                 </div>
@@ -20,7 +20,7 @@
         </div>
     </div>
 
-    <form action="{{ $question ? route('questions.update', $question->id) : route('questions.store') }}" method="POST">
+    <form action="{{ $question ? route('master.questions.update', $question->id) : route('master.questions.store') }}" method="POST">
         @csrf
         @if($question)
             @method('PUT')
@@ -207,7 +207,7 @@
 
             <div class="col-lg-12 mb-4">
                 <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Save Question</button>
-                <a href="{{ route('questions.index') }}" class="btn btn-secondary ms-2">Cancel</a>
+                <a href="{{ route('master.questions.index') }}" class="btn btn-secondary ms-2">Cancel</a>
             </div>
         </div>
     </form>

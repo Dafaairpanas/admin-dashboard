@@ -51,21 +51,21 @@ class User extends Authenticatable
         return $this->hasOne(RoleUser::class, 'user_id', 'id');
     }
 
-    public function roles()
-    {
-        return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id');
-    }
+    // public function roles()
+    // {
+    //     return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id');
+    // }
 
     // Accessor removed to prevent shadowing legacy 'role' column
     public function getRefRoleAttribute()
     {
-        return $this->roles->first();
+        return $this->refRoleUser()->first();
     }
 
     public function getRoleColorAttribute()
     {
         // 1. Try relationship
-        $role = $this->roles->first();
+        $role = $this->refRoleUser->first();
         if ($role && $role->badge_color) {
             // Map standard bootstrap names if stored in DB
             $colors = [
@@ -99,7 +99,7 @@ class User extends Authenticatable
      */
     public function hasRole($roleName)
     {
-        return $this->roles()->where('name', $roleName)->exists();
+        return $this->refRoleUser()->where('role_id', $roleName)->exists();
     }
 
 }

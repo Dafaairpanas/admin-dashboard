@@ -34,7 +34,7 @@
                         </div>
                     </div>
 
-                    <form action="{{ route('roles.index') }}" method="GET" class="mt-3">
+                    <form action="{{ route('manage.roles.index') }}" method="GET" class="mt-3">
                         <div class="input-group">
                             <input type="text" name="search_value" class="form-control" placeholder="Search by name..."
                                 value="{{ $search ?? '' }}">
@@ -90,7 +90,7 @@
                                                 <i class="las la-pen fs-18"></i>
                                             </button>
 
-                                            <form action="{{ route('roles.destroy', $role->id) }}" method="POST"
+                                            <form action="{{ route('manage.roles.destroy', $role->id) }}" method="POST"
                                                 class="d-inline" onsubmit="return confirm('Are you sure?')">
                                                 @csrf
                                                 @method('DELETE')
@@ -121,7 +121,7 @@
     <!-- Add Role Modal -->
     <div class="modal fade" id="addRoleModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
-            <form action="{{ route('roles.store') }}" method="POST">
+            <form action="{{ route('manage.roles.store') }}" method="POST">
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">

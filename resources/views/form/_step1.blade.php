@@ -46,7 +46,7 @@
             </div>
         @endforeach
 
-        <input type="hidden" name="kategori_pengunjung" id="kategori_pengunjung">
+        <input type="hidden" name="visitor_category_id" id="kategori_pengunjung">
         <div class="error-message" id="error_kategori_pengunjung"></div>
 
         {{-- Conditional B2B Fields --}}

@@ -5,7 +5,7 @@
 <div class="card">
     <div class="card-body p-0 bg-black auth-header-box rounded-top">
         <div class="text-center p-3">
-            <a href="{{ route('any', 'index')}}" class="logo logo-admin">
+            <a href="#" class="logo logo-admin">
                 <img src="/images/logo-sm.png" height="50" alt="logo" class="auth-logo">
             </a>
             <h4 class="mt-3 mb-1 fw-semibold text-white fs-18">Reset Password</h4>
@@ -13,7 +13,7 @@
         </div>
     </div>
     <div class="card-body pt-0">
-        <form class="my-4" action="{{ route('any', 'index')}}">
+        <form class="my-4" action="#">
             <div class="form-group mb-2">
                 <label class="form-label" for="username">Email</label>
                 <input type="text" class="form-control" id="userEmail" name="Email" placeholder="Enter Email Address">
@@ -28,7 +28,7 @@
             </div> <!--end form-group-->
         </form><!--end form-->
         <div class="text-center  mb-2">
-            <p class="text-muted">Remember It ? <a href="{{ route('second', ['auth', 'register'])}}" class="text-primary ms-2">Sign in here</a></p>
+            {{-- <p class="text-muted">Remember It ? <a href="{{ route('second', ['auth', 'register'])}}" class="text-primary ms-2">Sign in here</a></p> --}}
         </div>
     </div><!--end card-body-->
 </div><!--end card-->

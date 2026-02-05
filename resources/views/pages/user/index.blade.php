@@ -34,15 +34,15 @@
                         </button>
                     </div>
                 </div>
-                
-                <form action="{{ route('any', 'users') }}" method="GET" class="mt-3">
+
+                <form action="{{ route('manage.users.index') }}" method="GET" class="mt-3">
                     <div class="input-group">
                         <input type="text" name="search_value" class="form-control" placeholder="Search by name..." value="{{ $params->search_value ?? '' }}">
                         <button class="btn btn-outline-secondary" type="submit">Search</button>
                     </div>
                 </form>
             </div>
-            
+
             <div class="card-body pt-0">
                 @if(session('success'))
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -91,8 +91,8 @@
                                 </td>
                                 <td>{{ $user['created_at'] }}</td>
                                 <td class="text-end">
-                                    <button class="btn btn-sm btn-soft-info btn-edit" 
-                                            data-bs-toggle="modal" 
+                                    <button class="btn btn-sm btn-soft-info btn-edit"
+                                            data-bs-toggle="modal"
                                             data-bs-target="#editUserModal"
                                             data-id="{{ $user['id'] }}"
                                             data-name="{{ $user['name'] }}"
@@ -102,8 +102,8 @@
                                     >
                                         <i class="las la-pen fs-18"></i>
                                     </button>
-                                    
-                                    <form action="{{ route('users.destroy', $user['id']) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?')">
+
+                                    <form action="{{ route('manage.users.destroy', $user['id']) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-soft-danger">
@@ -120,7 +120,7 @@
                         </tbody>
                     </table>
                 </div>
-                
+
                 <!-- Pagination -->
                  <div class="mt-3">
                     <nav aria-label="Page navigation">
@@ -128,7 +128,7 @@
                             @if($attributes['page'] > 1)
                                 <li class="page-item"><a class="page-link" href="?page={{ $attributes['page'] - 1 }}&search_value={{ $params->search_value }}">Previous</a></li>
                             @endif
-                            
+
                             {{-- Simple Logic for Pagination Display --}}
                             <li class="page-item disabled"><span class="page-link">Page {{ $attributes['page'] }} of {{ $attributes['lastPage'] }}</span></li>
 
@@ -140,13 +140,13 @@
                  </div>
             </div>
         </div>
-    </div> 
+    </div>
 </div>
 
 <!-- Add User Modal -->
 <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
-        <form action="{{ route('users.store') }}" method="POST">
+        <form action="{{ route('manage.users.store') }}" method="POST">
             @csrf
             <div class="modal-content">
                 <div class="modal-header">
@@ -239,10 +239,10 @@
         const id = button.getAttribute('data-id');
         const name = button.getAttribute('data-name');
         const email = button.getAttribute('data-email');
-        
+
         const form = document.getElementById('editUserForm');
         form.action = '/admin/users/' + id;
-        
+
         document.getElementById('edit_name').value = name;
         document.getElementById('edit_email').value = email;
     });

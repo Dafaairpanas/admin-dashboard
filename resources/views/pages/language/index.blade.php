@@ -35,7 +35,7 @@
                         </div>
                     </div>
 
-                    <form action="{{ route('languages.index') }}" method="GET" class="mt-3">
+                    <form action="{{ route('master.languages.index') }}" method="GET" class="mt-3">
                         <div class="input-group">
                             <input type="text" name="search_value" class="form-control"
                                 placeholder="Search by name or code..." value="{{ $search ?? '' }}">
@@ -113,7 +113,7 @@
                                                 <i class="las la-pen fs-18"></i>
                                             </button>
 
-                                            <form action="{{ route('languages.destroy', $language->id) }}" method="POST"
+                                            <form action="{{ route('master.languages.destroy', $language->id) }}" method="POST"
                                                 class="d-inline" onsubmit="return confirm('Are you sure?')">
                                                 @csrf
                                                 @method('DELETE')
@@ -144,7 +144,7 @@
     <!-- Add Language Modal -->
     <div class="modal fade" id="addLanguageModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
-            <form action="{{ route('languages.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('master.languages.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">

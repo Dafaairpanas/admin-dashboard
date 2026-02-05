@@ -12,23 +12,14 @@ class Submission extends Model
     protected $table = 'submissions';
     protected $fillable = [
         'survey_id',
-        'full_name', // Mapping from nama_lengkap
-        'phone_number', // Mapping from whatsapp
+        'full_name',
+        'phone_number',
         'email',
-        'visitor_category_id', // keeping this, but maybe not used if we use string column?
-        // Added columns
+        'visitor_category_id',
         'kategori_pengunjung',
         'nama_perusahaan',
         'posisi_jabatan',
         'jenis_bisnis',
-        'jenis_bisnis_lainnya',
-        'kebutuhan_furniture',
-        'detail_kebutuhan',
-        'estimasi_budget',
-        'estimasi_waktu',
-        'estimasi_jumlah',
-        'preferensi_brand',
-        'consent',
         'wa_verified_at',
     ];
 

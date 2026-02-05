@@ -50,7 +50,7 @@
                         <div class="language-options" id="langOptions">
                             @foreach($available_languages as $lang)
                                 <div class="lang-option" data-lang="{{ $lang->code }}"
-                                    data-flag="{{ $lang->flag ? asset($lang->flag) : asset('images/logos/engflag.png') }}"
+                                    data-flag="{{ $lang->flag ? asset($lang->flag) : asset('images/logos/idflag.png') }}"
                                     data-name="{{ $lang->name }}">
                                     <img src="{{ $lang->flag ? asset($lang->flag) : asset('images/logos/engflag.png') }}"
                                         alt="{{ $lang->name }}" class="flag-circle">

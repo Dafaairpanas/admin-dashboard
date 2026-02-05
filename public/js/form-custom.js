@@ -15,7 +15,7 @@ const FORM_STATE_KEY = 'approx_form_state';
 const FORM_DATA_KEY = 'approx_form_data';
 
 // Language System
-let currentLang = localStorage.getItem('selectedLanguage') || 'en'; // Default English
+let currentLang = localStorage.getItem('selectedLanguage') || 'en';
 
 const translations = {
     id: {
@@ -240,7 +240,6 @@ function switchLanguage(lang) {
     localStorage.setItem('selectedLanguage', lang);
 
     // Kirim ke backend untuk sync session/cookie
-    // Kirim ke backend untuk sync session/cookie
     fetch('/switch-language', {
         method: 'POST',
         headers: {
@@ -252,9 +251,6 @@ function switchLanguage(lang) {
         .then(response => response.json())
         .then(data => {
             console.log('Language switched to:', lang);
-            // Optional: reload page to ensure backend-rendered content matches
-            // location.reload(); 
-            // For now, we keep it SPA-like for static texts, but session needs to updates
         })
         .catch(error => {
             console.error('Error switching language:', error);
@@ -275,6 +271,22 @@ function switchLanguage(lang) {
 
     // Update visitor categories (dynamic content from database)
     updateVisitorCategories(lang);
+    updateDynamicQuestions(lang);
+
+    // Update visible error messages
+    document.querySelectorAll('.error-message.show').forEach(el => {
+        const key = el.dataset.i18nError;
+        if (key) {
+            el.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + t(key);
+        }
+    });
+
+    // Update progress text
+    updateProgress();
+}
+
+function updateDynamicQuestions(lang) {
+    console.log('Updating dynamic questions for language:', lang);
 
     // Update dynamic question labels
     document.querySelectorAll('.question-label').forEach(label => {
@@ -291,16 +303,60 @@ function switchLanguage(lang) {
         }
     });
 
-    // Update visible error messages
-    document.querySelectorAll('.error-message.show').forEach(el => {
-        const key = el.dataset.i18nError;
-        if (key) {
-            el.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + t(key);
+    // Update option label
+    document.querySelectorAll('.option-label[data-text-id]').forEach(optionLabel => {
+        const textKey = `data-text-${lang}`;
+        const optionText = optionLabel.getAttribute(textKey);
+
+        if (optionText) {
+            optionLabel.textContent = optionText;
+            console.log('Updated option label:', optionText);
         }
     });
 
-    // Update progress text
-    updateProgress();
+    // update card Titles
+    document.querySelectorAll('.card-title[data-text-id]').forEach(cardTitle => {
+        const textKey = `data-text-${lang}`;
+        const titleText = cardTitle.getAttribute(textKey);
+
+        if (titleText) {
+            cardTitle.textContent = titleText;
+            console.log('Updated card title:', titleText);
+        }
+    });
+
+    // Update card description
+    document.querySelectorAll('.card-desc[data-text-id]').forEach(cardDesc => {
+        const textKey = `data-text-${lang}`;
+        const descText = cardDesc.getAttribute(textKey);
+
+        if (descText) {
+            cardDesc.textContent = descText;
+            console.log('Updated card description:', descText);
+        }
+    });
+
+    // Update dropdown options
+    document.querySelectorAll('select[name^="question_"] option[data-text-id]').forEach(option => {
+        const textKey = `data-text-${lang}`;
+        const optionText = option.getAttribute(textKey);
+
+        if (optionText) {
+            option.textContent = optionText;
+            console.log(`Updated dropdown option to: ${optionText}`);
+        }
+    });
+
+    // Update option descriptions (if any)
+    document.querySelectorAll('.option-description[data-text-id]').forEach(optionDesc => {
+        const textKey = `data-text-${lang}`;
+        const descText = optionDesc.getAttribute(textKey);
+
+        if (descText) {
+            optionDesc.textContent = descText;
+            console.log(`Updated option description to: ${descText}`);
+        }
+    });
 }
 
 function updateFlag(lang) {
@@ -312,7 +368,7 @@ function updateFlag(lang) {
     // Find option for selected lang
     const option = document.querySelector(`.lang-option[data-lang="${lang}"]`);
 
-    let flagUrl = '/images/logos/engflag.png'; // Fallback
+    let flagUrl = '/images/logos/engflag.png';
     let flagAlt = 'English';
 
     if (option) {
@@ -412,7 +468,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Restore form state from localStorage (if exists)
     restoreFormState();
 });
 
@@ -582,20 +637,9 @@ function showError(fieldId, messageKey) {
     const field = document.getElementById(fieldId);
     const errorDiv = document.getElementById('error_' + fieldId);
 
-    // Simpan key translasi di dataset agar bisa diupdate saat ganti bahasa
-    // Jika messageKey bukan key translasi yang valid (karena custom text), simpan text aslinya
-    // Tapi strategi terbaik adalah selalu pass key ke showError, bukan text
-    // Di sini kita asumsikan messageKey adalah translated text, jadi kita perlu ubah call site nya
-    // TAPI untuk meminimalisir refactor besar, kita ubah showError agar menerima parameter ke-3 opsional atau kita ubah cara panggilnya
-
-    // Agar alert ngikut language, kita harus simpan translation KEY nya
-    // Kita ubah showError agar menerima (fieldId, translationKey)
-    // Lalu di sini kita translate
-
     field.classList.add('error');
-    errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + t(messageKey); // messageKey harus berupa KEY sekarang
-    errorDiv.classList.add('show');
-    errorDiv.dataset.i18nError = messageKey; // Simpan key untuk update nanti
+    errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + t(messageKey);
+    errorDiv.dataset.i18nError = messageKey;
 
     // Shake animation
     field.style.animation = 'none';
@@ -605,38 +649,6 @@ function showError(fieldId, messageKey) {
     // Focus to first error
     setTimeout(() => field.focus(), 300);
 }
-
-// Modify switchLanguage to update errors too
-// function switchLanguage(lang) {
-//     currentLang = lang;
-
-//     // Simpan ke localStorage
-//     localStorage.setItem('selectedLanguage', lang);
-
-//     // Update flag
-//     updateFlag(lang);
-
-//     // Update all translatable elements
-//     document.querySelectorAll('[data-i18n]').forEach(el => {
-//         const key = el.dataset.i18n;
-//         if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-//             el.placeholder = t(key);
-//         } else {
-//             el.innerHTML = t(key);
-//         }
-//     });
-
-//     // Update visible error messages
-//     document.querySelectorAll('.error-message.show').forEach(el => {
-//         const key = el.dataset.i18nError;
-//         if (key) {
-//             el.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + t(key);
-//         }
-//     });
-
-//     // Update progress text
-//     updateProgress();
-// }
 
 // Validate Step 1
 function validateStep1() {
@@ -767,9 +779,6 @@ document.querySelectorAll('[data-radio]').forEach(item => {
             const hiddenInput = document.getElementById(radioName === 'kategori' ? 'kategori_pengunjung' : radioName + '_hidden');
             if (hiddenInput) {
                 hiddenInput.value = value;
-                // If using array inputs for this question (although max=1), we might want to standardize
-                // But for backward compatibility with controller that expects 'question_X' as string for single
-                // we keep single hidden input.
             }
 
             // Clear errors (generic)
@@ -854,7 +863,6 @@ document.querySelectorAll('[data-checkbox]').forEach(item => {
         const maxSelect = this.dataset.max ? parseInt(this.dataset.max) : null;
         const checkbox = this.querySelector('.option-checkbox');
 
-        // For single select (max=1), behave like radio - deselect others first
         if (maxSelect === 1) {
             // If already selected, just deselect
             if (this.classList.contains('selected')) {
@@ -1096,8 +1104,6 @@ function collectDynamicQuestionData() {
         });
     });
 
-    // Collect from text/number/textarea inputs (dynamic questions)
-    // These already exist in the form, just log them
     document.querySelectorAll('input[name^="question_"]:not([type="hidden"]), textarea[name^="question_"]').forEach(input => {
         if (input.value.trim()) {
             console.log('Text/Number/Textarea:', input.name, '=', input.value);
@@ -1110,7 +1116,5 @@ function collectDynamicQuestionData() {
             console.log('Dropdown:', select.name, '=', select.value);
         }
     });
-
-    console.log('Dynamic question data collection complete');
 }
 

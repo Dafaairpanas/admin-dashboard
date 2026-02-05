@@ -41,7 +41,7 @@ class RoleController extends Controller
             'badge_color' => $request->badge_color ?? '#6c757d',
         ]);
 
-        return redirect()->route('roles.index')->with('success', 'Role created successfully');
+        return redirect()->route('manage.roles.index')->with('success', 'Role created successfully');
     }
 
     public function update(Request $request, $id)
@@ -62,7 +62,7 @@ class RoleController extends Controller
             'badge_color' => $request->badge_color ?? $role->badge_color,
         ]);
 
-        return redirect()->route('roles.index')->with('success', 'Role updated successfully');
+        return redirect()->route('manage.roles.index')->with('success', 'Role updated successfully');
     }
 
     public function destroy($id)
@@ -75,6 +75,6 @@ class RoleController extends Controller
 
         $role->delete();
 
-        return redirect()->route('roles.index')->with('success', 'Role deleted successfully');
+        return redirect()->route('manage.roles.index')->with('success', 'Role deleted successfully');
     }
 }

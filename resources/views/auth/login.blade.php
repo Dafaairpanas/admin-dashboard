@@ -2,13 +2,13 @@
 
 @section('content')
     <div class="card">
-        <div class="card-body p-0 bg-black auth-header-box rounded-top">
+        <div class="card-body p-0 bg-primary auth-header-box rounded-top">
             <div class="text-center p-3">
-                <a href="{{ route('any', 'index')}}" class="logo logo-admin">
-                    <img src="/images/logo-sm.png" height="50" alt="logo" class="auth-logo">
+                <a href="{{ route('login') }}" class="logo logo-admin">
+                    <img src="/images/BroLogotext.png" height="50" alt="logo" class="auth-logo">
                 </a>
-                <h4 class="mt-3 mb-1 fw-semibold text-white fs-18">Let's Get Started Approx</h4>
-                <p class="text-muted fw-medium mb-0">Sign in to continue to Approx.</p>
+                <h4 class="mt-3 mb-1 fw-semibold text-white fs-18">Let's Get Started BroSurv</h4>
+                <p class="text-white fw-medium mb-0">Sign in to continue to BroSurv Admin.</p>
             </div>
         </div>
         <div class="card-body pt-0">

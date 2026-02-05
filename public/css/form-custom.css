@@ -368,7 +368,7 @@ body {
     padding: 16px;
     border: 2px solid var(--border-gray);
     border-radius: 12px;
-    margin-bottom: 0;
+    margin-bottom: 12px;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     animation: fadeIn 0.4s ease-out;
@@ -1069,4 +1069,8 @@ body {
     .btn-secondary-custom:hover {
         opacity: 1;
     }
+}
+
+.bg-orange {
+    background-color: var(--primary-orange);
 }

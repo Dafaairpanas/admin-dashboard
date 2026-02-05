@@ -19,12 +19,6 @@ class QuestionController extends Controller
     {
         $search = $request->search_value;
         $query = Question::query()->with(['refParentOption', 'refQuestionTranslations']);
-        // Note: refQuestionTranslations is not explicitly defined in Question model snippet I saw, 
-        // but relationships usually follow convention. I should check or add it.
-        // Assuming Question hasMany QuestionTranslation.
-
-        // Actually I need to add relation to Question model if missing.
-
         $questions = $query->orderBy('urutan')->paginate($request->show_data ?? 15);
 
         // Helper to get text for default language (or fallback)
@@ -41,10 +35,9 @@ class QuestionController extends Controller
     {
         $types = TypeQuestion::all();
         $languages = Languages::where('is_active', 1)->get();
-        // Assuming single survey or select first
         $surveyId = Survey::where('is_active', 1)->first()->id ?? 1;
 
-        return view('pages.question.edit', [ // Reusing edit view for create
+        return view('pages.question.edit', [
             'question' => null,
             'types' => $types,
             'languages' => $languages,
@@ -58,7 +51,6 @@ class QuestionController extends Controller
         $validator = Validator::make($request->all(), [
             'type_question_id' => 'required|exists:type_questions,id',
             'urutan' => 'required|integer',
-            // translations...
         ]);
 
         if ($validator->fails()) {
@@ -78,12 +70,6 @@ class QuestionController extends Controller
                 'grid_columns' => $request->grid_columns ?? 1,
             ]);
 
-            // Save Question Translations
-            /*
-             Request structure expected:
-             translations[en][question_text]
-             translations[id][question_text]
-             */
             if ($request->has('translations')) {
                 foreach ($request->translations as $code => $trans) {
                     if (!empty($trans['question_text'])) {
@@ -97,16 +83,12 @@ class QuestionController extends Controller
             }
 
             // Save Options
-            /*
-             options[idx][urutan]
-             options[idx][translations][en][option_text]
-             */
             if ($request->has('options')) {
                 foreach ($request->options as $optData) {
                     $option = QuestionOption::create([
                         'question_id' => $question->id,
                         'urutan' => $optData['urutan'] ?? 0,
-                        'has_followup' => 0 // To be implemented
+                        'has_followup' => 0
                     ]);
 
                     if (isset($optData['translations'])) {
@@ -125,7 +107,7 @@ class QuestionController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('questions.index')->with('success', 'Question created successfully');
+            return redirect()->route('master.questions.index')->with('success', 'Question created successfully');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -214,12 +196,12 @@ class QuestionController extends Controller
                 // Delete removed options
                 QuestionOption::where('question_id', $question->id)->whereNotIn('id', $submittedIds)->delete();
             } else {
-                // Loop if we want to delete all options if none sent? 
-                // If type has options, maybe. 
+                // Loop if we want to delete all options if none sent?
+                // If type has options, maybe.
             }
 
             DB::commit();
-            return redirect()->route('questions.index')->with('success', 'Question updated successfully');
+            return redirect()->route('master.questions.index')->with('success', 'Question updated successfully');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -231,6 +213,6 @@ class QuestionController extends Controller
     {
         $question = Question::findOrFail($id);
         $question->delete(); // Soft delete
-        return redirect()->route('questions.index')->with('success', 'Question deleted successfully');
+        return redirect()->route('master.questions.index')->with('success', 'Question deleted successfully');
     }
 }

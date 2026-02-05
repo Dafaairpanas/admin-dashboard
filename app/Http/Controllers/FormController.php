@@ -63,23 +63,23 @@ class FormController extends Controller
      */
     public function submit(Request $request)
     {
+        // dd($request->all());
         DB::beginTransaction();
         try {
             // Step 1: Save main submission data
             $submission = Submission::create([
-                'survey_id' => 1, // Default survey ID
+                'survey_id' => 1,
                 'full_name' => $request->input('full_name'),
                 'phone_number' => $request->input('phone_number'),
                 'email' => $request->input('email'),
-                'visitor_category_id' => $request->input('kategori_pengunjung'),
-                'kategori_pengunjung' => $request->input('kategori_pengunjung'),
-                'nama_perusahaan' => $request->input('company_name'),
-                'posisi_jabatan' => $request->input('job_title'),
-                'jenis_bisnis' => is_array($request->input('business_type'))
+                'visitor_category_id' => $request->input('visitor_category_id'),
+                'company_name' => $request->input('company_name'),
+                'job_title' => $request->input('job_title'),
+                'business_type' => is_array($request->input('business_type'))
                     ? json_encode($request->input('business_type'))
                     : $request->input('business_type'),
-                'jenis_bisnis_lainnya' => $request->input('jenis_bisnis_lainnya'),
-                'consent' => $request->input('consent', 0),
+                // 'business_type' => $request->input('jenis_bisnis_lainnya'),
+                // 'consent' => $request->input('consent', 0),
             ]);
 
             // Step 2: Save dynamic question answers
