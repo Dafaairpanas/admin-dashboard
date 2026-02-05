@@ -1,8 +1,20 @@
 
 
 import bootstrap from 'bootstrap/dist/js/bootstrap.min';
+import Selectr from "mobius1-selectr";
 
 window.bootstrap = bootstrap;
+
+// Initialize Selectr globally
+document.addEventListener('DOMContentLoaded', function () {
+    const selects = document.querySelectorAll('select:not(.no-selectr)');
+    selects.forEach(el => {
+        new Selectr(el, {
+            searchable: true,
+            width: '100%'
+        });
+    });
+});
 
 import 'simplebar'
 import 'prismjs/prism'

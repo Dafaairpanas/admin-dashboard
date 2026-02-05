@@ -1,0 +1,29 @@
+/* Sidebar Icon Standardization */
+.menu-icon {
+    font-size: 1.25rem !important;
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-right: 0.75rem !important;
+    vertical-align: middle !important;
+}
+
+/* Ensure Font Awesome icons match Iconoir size */
+.menu-icon.fas,
+.menu-icon.far,
+.menu-icon.fab,
+.menu-icon.fa {
+    font-size: 1.1rem !important;
+}
+
+/* Ensure consistent spacing for all sidebar nav links */
+.startbar .nav-link {
+    display: flex !important;
+    align-items: center !important;
+}
+
+.startbar .nav-link i {
+    flex-shrink: 0;
+}

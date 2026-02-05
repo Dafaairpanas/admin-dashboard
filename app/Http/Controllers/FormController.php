@@ -66,7 +66,41 @@ class FormController extends Controller
         // dd($request->all());
         DB::beginTransaction();
         try {
+            // Validation for Dynamic Questions
+            $activeQuestions = Question::where('is_active', true)->where('is_required', true)->get();
+            foreach ($activeQuestions as $question) {
+                // Check if question exists in request
+                // For checkboxes, it might be an array or individual keys if not grouped properly, 
+                // but our JS consolidates them into hidden inputs. 
+                // Text/Radio/Select usually 'question_{id}'.
+                // Checkbox group 'question_{id}' (array).
+
+                $key = 'question_' . $question->id;
+
+                // If it's a file input (future proofing), check hasFile. 
+                // For now, assume text/choice.
+
+                $value = $request->input($key);
+
+                if (empty($value)) {
+                    // Fail validation
+                    throw new \Exception('Pertanyaan "' . ($question->refQuestionTranslations->first()->question_text ?? 'Required Question') . '" wajib diisi.');
+                }
+            }
+
             // Step 1: Save main submission data
+            // Handle business_type with 'lainnya' replacement
+            $businessType = $request->input('business_type');
+            if (is_array($businessType)) {
+                // If user selected 'lainnya', replace it with the actual input
+                $lainnyaInput = $request->input('jenis_bisnis_lainnya');
+                if (in_array('lainnya', $businessType) && !empty($lainnyaInput)) {
+                    $key = array_search('lainnya', $businessType);
+                    $businessType[$key] = $lainnyaInput;
+                }
+                $businessType = json_encode($businessType);
+            }
+
             $submission = Submission::create([
                 'survey_id' => 1,
                 'full_name' => $request->input('full_name'),
@@ -75,9 +109,7 @@ class FormController extends Controller
                 'visitor_category_id' => $request->input('visitor_category_id'),
                 'company_name' => $request->input('company_name'),
                 'job_title' => $request->input('job_title'),
-                'business_type' => is_array($request->input('business_type'))
-                    ? json_encode($request->input('business_type'))
-                    : $request->input('business_type'),
+                'business_type' => $businessType,
                 // 'business_type' => $request->input('jenis_bisnis_lainnya'),
                 // 'consent' => $request->input('consent', 0),
             ]);

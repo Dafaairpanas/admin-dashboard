@@ -189,7 +189,6 @@
         <div class="modal-dialog">
             <form id="editLanguageForm" action="#" method="POST" enctype="multipart/form-data">
                 @csrf
-                @method('PUT')
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Edit Language</h5>
@@ -241,7 +240,7 @@
             const is_default = button.getAttribute('data-is_default');
 
             const form = document.getElementById('editLanguageForm');
-            form.action = '/admin/languages/' + id; // Warning: Ensure prefix is correct matching web.php
+            form.action = "{{ url('master/languages') }}/" + id + "/update";
 
             document.getElementById('edit_code').value = code;
             document.getElementById('edit_name').value = name;

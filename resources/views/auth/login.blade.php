@@ -23,14 +23,14 @@
 
                 <div class="form-group mb-2">
                     <label class="form-label" for="email">Email</label>
-                    <input type="email" class="form-control" id="email" placeholder="Enter email"
-                           name="email" value="demo@user.com">
+                    <input type="email" class="form-control" id="email" placeholder="Enter email" name="email"
+                        value="demo@user.com">
                 </div><!--end form-group-->
 
                 <div class="form-group">
                     <label class="form-label" for="password">Password</label>
-                    <input type="password" class="form-control" name="password" id="password"
-                           placeholder="Enter password" value="password">
+                    <input type="password" class="form-control" name="password" id="password" placeholder="Enter password"
+                        value="password">
                 </div><!--end form-group-->
 
                 <div class="form-group mb-0 row">

@@ -17,8 +17,19 @@ class MasterDataSeeder extends Seeder
     public function run()
     {
         // 1. Languages
-        $id = Languages::create(['code' => 'id', 'name' => 'Indonesia', 'is_default' => 0, 'is_active' => 1, 'flag' => 'images/flags/id_1770183114.png']);
-        $en = Languages::create(['code' => 'en', 'name' => 'English', 'is_default' => 1, 'is_active' => 1, 'flag' => 'images/flags/en_1770183106.png']);
+        $id = Languages::where('code', 'id')->first();
+        if (!$id) {
+            $id = Languages::create(['code' => 'id', 'name' => 'Indonesia', 'is_default' => 0, 'is_active' => 1, 'flag' => 'images/logos/idflag.png']);
+        } else {
+            $id->update(['flag' => 'images/logos/idflag.png']);
+        }
+
+        $en = Languages::where('code', 'en')->first();
+        if (!$en) {
+            $en = Languages::create(['code' => 'en', 'name' => 'English', 'is_default' => 1, 'is_active' => 1, 'flag' => 'images/logos/engflag.png']);
+        } else {
+            $en->update(['flag' => 'images/logos/engflag.png']);
+        }
 
         // 2. Types
         $types = [
@@ -30,7 +41,7 @@ class MasterDataSeeder extends Seeder
         ];
 
         foreach ($types as $t) {
-            TypeQuestion::create($t);
+            TypeQuestion::firstOrCreate(['code' => $t['code']], $t);
         }
 
         // 3. Survey

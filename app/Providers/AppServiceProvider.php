@@ -24,6 +24,16 @@ class AppServiceProvider extends ServiceProvider
             if (\Illuminate\Support\Facades\Schema::hasTable('languages')) {
                 \Illuminate\Support\Facades\View::share('available_languages', \App\Models\Languages::where('is_active', 1)->get());
             }
+
+            // Share dynamic menu to sidebar
+            if (\Illuminate\Support\Facades\Schema::hasTable('menus')) {
+                $menus = \App\Models\Menu::whereNull('parent_id')
+                    ->orderBy('urutan', 'asc')
+                    ->get();
+                \Illuminate\Support\Facades\View::composer('layouts.partials.startbar', function ($view) use ($menus) {
+                    $view->with('management_menus', $menus);
+                });
+            }
         } catch (\Exception $e) {
             // Fallback if DB not ready
         }

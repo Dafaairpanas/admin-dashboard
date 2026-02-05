@@ -536,6 +536,22 @@ function restoreFormState() {
                     const item = document.querySelector(`[data-checkbox="business_type"][data-value="${value}"]`);
                     if (item) {
                         item.classList.add('selected');
+
+                        // Restore visual state (checkmark)
+                        const checkbox = item.querySelector('.option-checkbox');
+                        if (checkbox) {
+                            checkbox.style.backgroundColor = 'var(--primary-orange)';
+                            checkbox.style.borderColor = 'var(--primary-orange)';
+                            checkbox.innerHTML = '<i class="fas fa-check" style="color: white; font-size: 12px;"></i>';
+                        }
+
+                        // Restore "Lainnya" input visibility if needed
+                        if (value === 'lainnya') {
+                            const lainnyaInput = document.getElementById('lainnyaInput');
+                            if (lainnyaInput) {
+                                lainnyaInput.classList.add('show');
+                            }
+                        }
                     }
                 });
                 updateArrayInputs('business_type');
@@ -727,7 +743,7 @@ function validateStep1() {
         errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + t('error_jenis_bisnis_required');
         errorDiv.classList.add('show');
         errorDiv.dataset.i18nError = 'error_jenis_bisnis_required';
-        window.scrollTo({ top: document.querySelector('[data-checkbox="jenis_bisnis"]').offsetTop - 150, behavior: 'smooth' });
+        window.scrollTo({ top: document.querySelector('[data-checkbox="business_type"]').offsetTop - 150, behavior: 'smooth' });
         return false;
     }
 
@@ -1031,23 +1047,113 @@ function toggleConsent() {
     }
 }
 
-// Form Submit Validation for Consent
+// Form Submit Validation
 document.getElementById('multiStepForm').addEventListener('submit', function (e) {
-    // Collect data from dynamic questions first
+    e.preventDefault(); // Prevent default submission first
+
+    // Validate Step 2 (Dynamic Questions)
+    if (!validateStep2()) {
+        return;
+    }
+
+    // Collect data from dynamic questions
     collectDynamicQuestionData();
 
     // Then validate consent
     const consentInput = document.getElementById('consentInput');
     if (consentInput.value !== '1') {
-        e.preventDefault();
         document.getElementById('consentError').style.display = 'block';
         // Scroll to error
         document.getElementById('consentCheckbox').scrollIntoView({ behavior: 'smooth', block: 'center' });
-    } else {
-        // Clear form state from localStorage on successful submit
-        clearFormState();
+        return;
     }
+
+    // If all valid, submit
+    // Clear form state from localStorage on successful submit
+    clearFormState();
+    this.submit();
 });
+
+// Validate Step 2
+function validateStep2() {
+    let isValid = true;
+    let firstErrorElement = null;
+
+    // Iterate through all question sections
+    document.querySelectorAll('.question-section').forEach(section => {
+        const isRequired = section.dataset.required === '1';
+        const questionId = section.dataset.questionId;
+
+        // Remove existing error
+        const errorDiv = document.getElementById('error_question_' + questionId);
+        if (errorDiv) {
+            errorDiv.classList.remove('show');
+            errorDiv.innerHTML = '';
+        }
+
+        if (!isRequired) return;
+
+        let isAnswered = false;
+
+        // Check based on input types inside the section
+        // 1. Text, Number, Textarea, Select
+        const textInputs = section.querySelectorAll('input[type="text"], input[type="number"], textarea, select');
+        textInputs.forEach(input => {
+            if (input.type === 'hidden') return; // Skip hidden inputs for now (handled separately or not main input)
+            if (input.value.trim() !== '') {
+                isAnswered = true;
+            }
+        });
+
+        // 2. Radio Buttons
+        const radioInputs = section.querySelectorAll('[data-radio]');
+        if (radioInputs.length > 0) {
+            // Check if any radio in this group is selected
+            radioInputs.forEach(radio => {
+                if (radio.classList.contains('selected')) {
+                    isAnswered = true;
+                }
+            });
+        }
+
+        // 3. Checkboxes (Furniture Cards / Standard Checkboxes)
+        const checkboxInputs = section.querySelectorAll('[data-checkbox]');
+        if (checkboxInputs.length > 0) {
+            // Check if any checkbox in this group is selected
+            checkboxInputs.forEach(checkbox => {
+                if (checkbox.classList.contains('selected')) {
+                    isAnswered = true;
+                }
+            });
+        }
+
+        if (!isAnswered) {
+            isValid = false;
+            if (errorDiv) {
+                // Use a generic "This field is required" message or specific key
+                // Ideally, backend provides a key like 'error_required'
+                // For now, hardcode or use a common key
+                const msg = t('error_jenis_bisnis_required').replace('Jenis Bisnis', 'Pertanyaan ini'); // Hacky fallback or create new key
+                // Better: Use a generic required message.
+                // Let's check `translations` object in memory if possible?
+                // Or just hardcode "Wajib diisi" / "Required" based on lang
+                const reqMsg = currentLang === 'id' ? 'Pertanyaan ini wajib diisi' : 'This question is required';
+
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + reqMsg;
+                errorDiv.classList.add('show');
+            }
+            if (!firstErrorElement) {
+                firstErrorElement = section;
+            }
+        }
+    });
+
+    if (firstErrorElement) {
+        firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    return isValid;
+}
 
 // Function to collect data from dynamic questions
 function collectDynamicQuestionData() {

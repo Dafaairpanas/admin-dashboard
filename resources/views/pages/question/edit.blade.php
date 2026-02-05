@@ -123,13 +123,10 @@
             <div class="row">
                 <div class="col-md-4 mb-3" id="max_selections_container" style="display: none;">
                     <label class="form-label">Selection Mode</label>
-                    <select name="max_selections" class="form-select">
-                        <option value="" {{ !$question || $question->max_selections === null ? 'selected' : '' }}>
-                            Multiple Options
-                            (Unlimited)</option>
-                        <option value="1" {{ $question && $question->max_selections === 1 ? 'selected' : '' }}>Single
-                            Option (Limit 1)</option>
-                    </select>
+                    <label class="form-label">Max Selections</label>
+                    <input type="number" name="max_selections" class="form-control" min="1"
+                        value="{{ $question->max_selections ?? '' }}" placeholder="Empty = Unlimited">
+                    <small class="text-muted">Limit the number of options a user can select.</small>
                 </div>
                 <div class="col-md-4 mb-3" id="grid_columns_container" style="display: none;">
                     <label class="form-label">Grid Columns</label>
@@ -251,7 +248,7 @@
                     maxSelectionsContainer.style.display = 'none';
                     gridColumnsContainer.style.display = 'none';
                     // Reset value if hidden
-                    document.querySelector('select[name="max_selections"]').value = "";
+                    document.querySelector('input[name="max_selections"]').value = "";
                     document.querySelector('input[name="grid_columns"]').value = "1";
                 }
             }

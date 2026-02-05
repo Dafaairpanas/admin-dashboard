@@ -22,8 +22,8 @@
     </div>
 
     <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="form-container">
+        <div class="col-lg-12">
+            <div class="main-container">
                 {{-- Header --}}
                 <div class="form-header">
                     <h1 class="form-title">Form Submission - Read Only</h1>
@@ -61,39 +61,41 @@
                         $isPerorangan = strtolower($visitorCategoryName) === 'perorangan';
                     @endphp
 
-                    @if(!$isPerorangan && ($submission->nama_perusahaan || $submission->posisi_jabatan))
+                    @if(!$isPerorangan && ($submission->company_name || $submission->job_title))
                         <div class="form-section">
                             <label class="form-label-custom">Company Name</label>
-                            <input type="text" class="form-control form-control-custom" value="{{ $submission->nama_perusahaan ?? '-' }}" readonly>
+                            <input type="text" class="form-control form-control-custom" value="{{ $submission->company_name ?? '-' }}" readonly>
                         </div>
 
                         <div class="form-section">
                             <label class="form-label-custom">Job Title</label>
-                            <input type="text" class="form-control form-control-custom" value="{{ $submission->posisi_jabatan ?? '-' }}" readonly>
+                            <input type="text" class="form-control form-control-custom" value="{{ $submission->job_title ?? '-' }}" readonly>
                         </div>
                     @endif
 
                     <div class="form-section">
                         <label class="form-label-custom">Business Type</label>
                         @php
-                            $businessTypes = is_string($submission->jenis_bisnis) 
-                                ? json_decode($submission->jenis_bisnis, true) 
-                                : $submission->jenis_bisnis;
+                            $businessTypes = is_string($submission->business_type) 
+                                ? json_decode($submission->business_type, true) 
+                                : $submission->business_type;
                             
                             $businessTypeArray = [];
                             
+                            $businessTypeMapping = [
+                                'hotel_resort' => 'Hotel / Resort',
+                                'villa' => 'Villa',
+                                'cafe_restaurant' => 'Cafe / Restaurant / Beach Club',
+                                'developer' => 'Developer / Kontraktor',
+                                'designer' => 'Designer Interior',
+                            ];
+
                             if (is_array($businessTypes)) {
                                 foreach ($businessTypes as $type) {
-                                    // Skip "lainnya" karena akan diganti dengan detail
-                                    if (strtolower($type) !== 'lainnya') {
-                                        $businessTypeArray[] = ucwords(str_replace('_', ' ', $type));
-                                    }
+                                    // Check if type exists in mapping, otherwise use the value as is (for custom 'lainnya' input)
+                                    $label = $businessTypeMapping[$type] ?? ucwords(str_replace('_', ' ', $type));
+                                    $businessTypeArray[] = $label;
                                 }
-                            }
-                            
-                            // Replace "Lainnya" dengan detail bisnis yang diinput
-                            if ($submission->jenis_bisnis_lainnya) {
-                                $businessTypeArray[] = $submission->jenis_bisnis_lainnya;
                             }
                             
                             $businessTypeText = !empty($businessTypeArray) ? implode(', ', $businessTypeArray) : '-';
@@ -123,8 +125,12 @@
                                 <label class="form-label-custom">
                                     @php
                                         $questionTranslation = $question->refQuestionTranslation($defaultLang)->first();
+                                        $questionText = $questionTranslation->question_text ?? $question->key ?? 'Question #' . $questionId;
                                     @endphp
-                                    {{ $questionTranslation->question_text ?? $question->key ?? 'Question #' . $questionId }}
+                                    {{ $questionText }}
+                                    @if($question->trashed())
+                                        <span class="text-danger" style="font-size: 0.8em;">(Deleted)</span>
+                                    @endif
                                     @if($question->is_required)
                                         <span class="required">*</span>
                                     @endif
@@ -153,11 +159,7 @@
                                                 $optionTranslation = $opt->refQuestionOptionTranslation($defaultLang)->first();
                                             @endphp
                                             <div class="option-item {{ $isSelected ? 'selected' : '' }}" style="pointer-events: none;">
-                                                <div class="option-radio">
-                                                    @if($isSelected)
-                                                        <div style="width: 8px; height: 8px; background: white; border-radius: 50%;"></div>
-                                                    @endif
-                                                </div>
+                                                <div class="option-radio"></div>
                                                 <span class="option-label">
                                                     {{ $optionTranslation->option_text ?? $opt->option_text }}
                                                 </span>
@@ -239,10 +241,10 @@
                                 @endif
                             </div>
                         @else
-                            {{-- Question deleted --}}
+                            {{-- Question deleted permanently (force deleted) --}}
                             <div class="form-section">
                                 <label class="form-label-custom text-muted">
-                                    <i class="las la-exclamation-triangle"></i> Question #{{ $questionId }} (Deleted)
+                                    <i class="las la-exclamation-triangle"></i> Question #{{ $questionId }} (Permanently Deleted)
                                 </label>
                                 @if($firstAnswer->answer_text)
                                     <input type="text" class="form-control form-control-custom" 

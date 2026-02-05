@@ -26,7 +26,7 @@ class SubmissionAnswer extends Model
 
     public function refQuestion()
     {
-        return $this->belongsTo(Question::class, 'question_id', 'id');
+        return $this->belongsTo(Question::class, 'question_id', 'id')->withTrashed();
     }
 
     public function refQuestionOption()

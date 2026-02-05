@@ -20,6 +20,9 @@ class Submission extends Model
         'nama_perusahaan',
         'posisi_jabatan',
         'jenis_bisnis',
+        'company_name',
+        'job_title',
+        'business_type',
         'wa_verified_at',
     ];
 

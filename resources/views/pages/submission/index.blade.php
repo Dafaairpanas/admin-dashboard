@@ -81,8 +81,7 @@
                                                 <i class="las la-eye"></i>
                                             </a>
                                             <form action="{{ route('submissions.destroy', $submission->id) }}" method="POST"
-                                                class="d-inline"
-                                                onsubmit="return confirm('Are you sure you want to delete this submission?')">
+                                                class="d-inline delete-form">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-soft-danger" title="Delete">

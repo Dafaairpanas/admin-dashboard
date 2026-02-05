@@ -17,5 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        // Handle View Not Found errors
+        $exceptions->render(function (\Illuminate\View\ViewException $e, $request) {
+            if (str_contains($e->getMessage(), 'View') && str_contains($e->getMessage(), 'not found')) {
+                return response()->view('errors.404', [], 404);
+            }
+        });
     })->create();

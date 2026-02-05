@@ -23,6 +23,8 @@
     </div>
 
 
+
+    @include('components.delete-modal')
     @include('layouts.partials/footer-scripts')
 
 </body>

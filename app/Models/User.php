@@ -89,7 +89,8 @@ class User extends Authenticatable
             'manager' => '#ffc107',
         ];
 
-        return $colors[strtolower($this->role ?? '')] ?? '#6c757d'; // Default grey
+        // Since role column is removed, we default to grey if no role relation found
+        return '#6c757d';
     }
 
     /**

@@ -22,6 +22,8 @@ class QUser
             ->orderBy('name', 'asc')
             ->paginate($params->show_data ?? 15);
 
+
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $data */
         return [
             'items' => $data->getCollection()
                 ->transform(function ($item) {

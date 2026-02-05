@@ -73,11 +73,24 @@
                                     @php
                                         $trans = $q->refQuestionTranslations->where('language_code', $defaultLang)->first();
                                         $text = $trans ? Str::limit($trans->question_text, 50) : '-';
-                                        $typeCode = \App\Models\TypeQuestion::find($q->type_question_id)->code ?? '-';
+
+                                        // Get type code from eager loaded relationship or query fallback
+                                        $typeCode = $q->refTypeQuestion ? $q->refTypeQuestion->code : (\App\Models\TypeQuestion::find($q->type_question_id)->code ?? '-');
+
+                                        $badgeClass = match ($typeCode) {
+                                            'text' => 'bg-primary',
+                                            'textarea' => 'bg-secondary',
+                                            'radio' => 'bg-success',
+                                            'checkbox' => 'bg-warning',
+                                            'dropdown' => 'bg-info',
+                                            'number' => 'bg-dark',
+                                            'checkbox_card' => 'bg-danger',
+                                            default => 'bg-soft-primary text-primary'
+                                        };
                                     @endphp
                                     <tr>
                                         <td>{{ $q->urutan }}</td>
-                                        <td><span class="badge bg-info">{{ $typeCode }}</span></td>
+                                        <td><span class="badge {{ $badgeClass }}">{{ $typeCode }}</span></td>
                                         <td>{{ $text }}</td>
                                         <td>
                                             @if($q->is_active)

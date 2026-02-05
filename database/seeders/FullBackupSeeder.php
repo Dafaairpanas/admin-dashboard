@@ -37,7 +37,7 @@ class FullBackupSeeder extends Seeder
             'id' => '1',
             'name' => 'Admin User',
             'email' => 'admin@approx.com',
-            'role' => 'admin',
+
             'email_verified_at' => '2026-02-02 07:45:58',
             'password' => '$2y$12$8Xsz/pKhtSk3dw.OaHwAjuu5Bknb4WPZ3zKgJbGtbbQT/.TQQAAue',
             'remember_token' => null,
@@ -49,7 +49,7 @@ class FullBackupSeeder extends Seeder
             'id' => '2',
             'name' => 'Manager User',
             'email' => 'manager@approx.com',
-            'role' => 'manager',
+
             'email_verified_at' => '2026-02-02 07:45:58',
             'password' => '$2y$12$xQVAychKO1wPB9bJ1PgEIOEpL8dnrI.g.s.vApMz9xw7V3o0yX9Q6',
             'remember_token' => null,
@@ -61,7 +61,7 @@ class FullBackupSeeder extends Seeder
             'id' => '3',
             'name' => 'Regular User',
             'email' => 'user@approx.com',
-            'role' => 'user',
+
             'email_verified_at' => '2026-02-02 07:45:59',
             'password' => '$2y$12$xTJmlssHrgTfL18SZ4jwUOcnQI1sFAQJeQRv/xjBnA2zzMDqRPoc6',
             'remember_token' => null,
@@ -73,7 +73,7 @@ class FullBackupSeeder extends Seeder
             'id' => '4',
             'name' => 'SuperAdmin',
             'email' => 'admin@broliv.com',
-            'role' => 'user',
+
             'email_verified_at' => '2026-02-04 00:47:44',
             'password' => '$2y$12$st3N1tXdfjHSq/WaPjtEA.WJdNZPG5vD4aGL/uguAfWu21D.tn6SW',
             'remember_token' => 'tnsYcXHMM6',
@@ -85,7 +85,7 @@ class FullBackupSeeder extends Seeder
             'id' => '6',
             'name' => 'Super Admin',
             'email' => 'superadmin@example.com',
-            'role' => 'user',
+
             'email_verified_at' => null,
             'password' => '$2y$12$iCbNF5OeXXhcn4k14GxLDOpehJB6Q2K0I3Xv/1U1cFsYsOnCxhN6.',
             'remember_token' => null,
@@ -97,7 +97,7 @@ class FullBackupSeeder extends Seeder
             'id' => '7',
             'name' => 'Admin',
             'email' => 'admin@example.com',
-            'role' => 'user',
+
             'email_verified_at' => null,
             'password' => '$2y$12$dYOp1Tj4Q46PO0GPNoJ6eeLWmFKvw355g5OC0bnxaIA1XympmzW6K',
             'remember_token' => null,
@@ -109,7 +109,7 @@ class FullBackupSeeder extends Seeder
             'id' => '8',
             'name' => 'adit',
             'email' => 'adit@user.a',
-            'role' => 'admin',
+
             'email_verified_at' => null,
             'password' => '$2y$12$CXyFs3TsuKYCOt8BX21W6OSdkTzItOCnaYtdj8t0Lnyd2ZiAESnMu',
             'remember_token' => null,
@@ -121,7 +121,7 @@ class FullBackupSeeder extends Seeder
             'id' => '9',
             'name' => 'adit',
             'email' => 'adit@super.a',
-            'role' => 'superadmin',
+
             'email_verified_at' => null,
             'password' => '$2y$12$vdJl2bndH1H.pVWmLqe65usT5abixYnQav0OPuN5OHM9De/uc4ubi',
             'remember_token' => null,

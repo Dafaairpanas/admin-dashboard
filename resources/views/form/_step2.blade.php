@@ -91,12 +91,28 @@
                                  data-value="{{ $opt->id }}"
                                  data-max="{{ $q->max_selections ?? 1 }}">
                                 <div class="option-radio"></div>
-                                <span class="option-label"
-                                    data-text-id="{{ $opt->refQuestionOptionTranslation('id')->first()->option_text ?? '' }}"
-                                    data-text-en="{{ $opt->refQuestionOptionTranslation('en')->first()->option_text ?? '' }}"
-                                    data-text-jp="{{ $opt->refQuestionOptionTranslation('jp')->first()->option_text ?? '' }}">
-                                    {{ $opt->refQuestionOptionTranslation($current_lang)->first()->option_text ?? $opt->option_text }}
-                                </span>
+                                <div style="flex: 1;">
+                                    <span class="option-label"
+                                        data-text-id="{{ $opt->refQuestionOptionTranslation('id')->first()->option_text ?? '' }}"
+                                        data-text-en="{{ $opt->refQuestionOptionTranslation('en')->first()->option_text ?? '' }}"
+                                        data-text-jp="{{ $opt->refQuestionOptionTranslation('jp')->first()->option_text ?? '' }}">
+                                        {{ $opt->refQuestionOptionTranslation($current_lang)->first()->option_text ?? $opt->option_text }}
+                                    </span>
+                                    @php
+                                        $desc_id = $opt->refQuestionOptionTranslation('id')->first()->description ?? '';
+                                        $desc_en = $opt->refQuestionOptionTranslation('en')->first()->description ?? '';
+                                        $desc_jp = $opt->refQuestionOptionTranslation('jp')->first()->description ?? '';
+                                        $current_desc = $opt->refQuestionOptionTranslation($current_lang)->first()->description ?? '';
+                                    @endphp
+                                    @if($desc_id || $desc_en || $desc_jp)
+                                        <div class="option-sublabel mt-1" 
+                                             data-desc-id="{{ $desc_id }}"
+                                             data-desc-en="{{ $desc_en }}"
+                                             data-desc-jp="{{ $desc_jp }}">
+                                            {{ $current_desc }}
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                         @endforeach
                     </div>

@@ -10,6 +10,9 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation-icons/3.0.1/foundation-icons.min.css">
 
+<!-- Custom Sidebar Styles -->
+<link rel="stylesheet" href="{{ asset('css/sidebar-custom.css') }}">
+
 <!-- Fix Pagination SVG Size -->
 <style>
     .pagination svg {

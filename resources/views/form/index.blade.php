@@ -16,8 +16,13 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+    <!-- Selectr CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/mobius1-selectr@latest/dist/selectr.min.css" rel="stylesheet"
+        type="text/css">
     <!-- Custom CSS -->
     <link href="{{ asset('css/form-custom.css') }}" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mobius1-selectr@latest/dist/selectr.min.js"
+        type="text/javascript"></script>
 </head>
 
 <body>
@@ -68,9 +73,48 @@
         </div>
 
         @if (session('success'))
-            <div class="success-message">
-                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+            {{-- Success Modal --}}
+            <div class="success-modal-overlay" id="successModalOverlay">
+                <div class="success-modal">
+                    <div class="success-modal-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3 class="success-modal-title">Berhasil!</h3>
+                    <p class="success-modal-message">{{ session('success') }}</p>
+                    <div class="success-modal-timer">
+                        <div class="timer-bar" id="timerBar"></div>
+                    </div>
+                </div>
             </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const overlay = document.getElementById('successModalOverlay');
+                    const timerBar = document.getElementById('timerBar');
+
+                    // Animate timer bar
+                    setTimeout(() => {
+                        timerBar.style.width = '0%';
+                    }, 100);
+
+                    // Auto close after 3 seconds
+                    setTimeout(() => {
+                        overlay.classList.add('fade-out');
+                        setTimeout(() => {
+                            overlay.style.display = 'none';
+                        }, 300);
+                    }, 3000);
+
+                    // Click to close
+                    overlay.addEventListener('click', function (e) {
+                        if (e.target === overlay) {
+                            overlay.classList.add('fade-out');
+                            setTimeout(() => {
+                                overlay.style.display = 'none';
+                            }, 300);
+                        }
+                    });
+                });
+            </script>
         @endif
 
         <form action="{{ route('form.submit') }}" method="POST" id="multiStepForm" novalidate>
@@ -99,11 +143,11 @@
         // Initialize visitor translations from backend
         window.visitorTranslations = {
             @foreach ($visitors as $visitor)
-                            "{{ $visitor['id'] }}": {
+                                        "{{ $visitor['id'] }}": {
                     "id": "{{ $master_visitor_category_translations->where('visitor_category_id', $visitor['id'])->where('language_code', 'id')->first()->name ?? $visitor['name'] }}",
                     "en": "{{ $master_visitor_category_translations->where('visitor_category_id', $visitor['id'])->where('language_code', 'en')->first()->name ?? $visitor['name'] }}"
                 }
-                            {{ $loop->last ? '' : ',' }}
+                                        {{ $loop->last ? '' : ',' }}
             @endforeach
         };
     </script>
