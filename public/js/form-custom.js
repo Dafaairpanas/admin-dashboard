@@ -488,6 +488,7 @@ function updateVisitorCategories(lang) {
 }
 
 // Save form state to localStorage
+// Save form state to localStorage
 function saveFormState() {
     const formState = {
         nama_lengkap: document.getElementById('nama_lengkap').value,
@@ -497,8 +498,46 @@ function saveFormState() {
         nama_perusahaan: document.getElementById('nama_perusahaan').value,
         posisi_jabatan: document.getElementById('posisi_jabatan').value,
         jenis_bisnis_lainnya: document.getElementById('jenis_bisnis_lainnya').value,
-        business_type: formData.business_type
+        business_type: formData.business_type,
+        // Step 2 Data
+        dynamic_questions: {}
     };
+
+    // Save Dynamic Questions
+    document.querySelectorAll('[name^="question_"]').forEach(input => {
+        if (input.type !== 'hidden') {
+            if (input.type === 'radio' || input.type === 'checkbox') {
+                // Radio/checkbox handled via custom divs usually, but if standard inputs exist:
+                if (input.checked) {
+                    if (!formState.dynamic_questions[input.name]) formState.dynamic_questions[input.name] = [];
+                    formState.dynamic_questions[input.name].push(input.value);
+                }
+            } else {
+                formState.dynamic_questions[input.name] = input.value;
+            }
+        }
+    });
+
+    // Save custom radio/checkbox states (using formData or DOM)
+    // We already have some in hidden inputs, let's grab from formData if possible or re-collect
+    // Better strategy: Reuse the logic from 'collectDynamicQuestionData' but for saving
+    // For simplicity, let's iterate the custom UI elements which is the source of truth
+
+    // Custom Radio/Checkbox state
+    document.querySelectorAll('.question-section').forEach(section => {
+        const questionId = section.dataset.questionId;
+        const key = 'question_' + questionId;
+
+        // Check for custom radio/checkbox
+        const selectedItems = [];
+        section.querySelectorAll('.selected[data-value]').forEach(item => {
+            selectedItems.push(item.dataset.value);
+        });
+
+        if (selectedItems.length > 0) {
+            formState.dynamic_questions[key] = selectedItems;
+        }
+    });
 
     localStorage.setItem(FORM_DATA_KEY, JSON.stringify(formState));
 }
@@ -557,6 +596,54 @@ function restoreFormState() {
                 updateArrayInputs('business_type');
             }
 
+            // Restore Step 2 Dynamic Questions
+            if (formState.dynamic_questions) {
+                Object.keys(formState.dynamic_questions).forEach(key => {
+                    const value = formState.dynamic_questions[key];
+                    const input = document.getElementById(key);
+
+                    // 1. Standard Inputs (Text, Number, Textarea, Select)
+                    if (input && (input.tagName === 'INPUT' || input.tagName === 'TEXTAREA' || input.tagName === 'SELECT')) {
+                        input.value = value;
+                    }
+
+                    // 2. Custom Radio/Checkbox groups
+                    const customItems = document.querySelectorAll(`[data-radio="${key}"], [data-checkbox="${key}"]`);
+                    if (customItems.length > 0) {
+                        const values = Array.isArray(value) ? value : [value];
+
+                        values.forEach(val => {
+                            const item = document.querySelector(`[data-radio="${key}"][data-value="${val}"], [data-checkbox="${key}"][data-value="${val}"]`);
+                            if (item) {
+                                item.classList.add('selected');
+
+                                // Visual update components
+                                const radio = item.querySelector('.option-radio');
+                                if (radio) {
+                                    radio.style.backgroundColor = 'var(--primary-orange)';
+                                    radio.style.borderColor = 'var(--primary-orange)';
+                                    radio.innerHTML = '';
+                                }
+
+                                const checkbox = item.querySelector('.option-checkbox');
+                                if (checkbox) {
+                                    checkbox.style.backgroundColor = 'var(--primary-orange)';
+                                    checkbox.style.borderColor = 'var(--primary-orange)';
+                                    checkbox.innerHTML = '<i class="fas fa-check" style="color: white; font-size: 12px;"></i>';
+                                }
+
+                                // Sync with formData if using the handler logic? 
+                                // The handler uses formData global for some logic, but dynamic questions mostly rely on visual class 'selected' 
+                                // until 'collectDynamicQuestionData' is called.
+                                // However, for consistency with 'click' handler logic (e.g. max select check), 
+                                // we might want to manually populate similar structures if we used them.
+                                // But 'collectDynamicQuestionData' simply reads '.selected' classes, so this visual restore is sufficient for submission.
+                            }
+                        });
+                    }
+                });
+            }
+
             // Restore to saved step
             const step = parseInt(savedStep);
             if (step === 2) {
@@ -581,10 +668,9 @@ function clearFormState() {
 // Update progress bar
 function updateProgress() {
     const progress = (currentStep / totalSteps) * 100;
-    document.getElementById('progressBar').style.width = progress + '%';
-    document.getElementById('progressText').textContent = t('step_of')
-        .replace('{current}', currentStep)
-        .replace('{total}', totalSteps);
+    document.querySelectorAll('.progress-bar-fill').forEach(bar => {
+        bar.style.width = progress + '%';
+    });
 }
 
 // Navigate to next step
@@ -618,24 +704,7 @@ function prevStep() {
     window.scrollTo(0, 0);
 }
 
-// Helper function untuk menampilkan error
-function showError(fieldId, message) {
-    const field = document.getElementById(fieldId);
-    const errorDiv = document.getElementById('error_' + fieldId);
 
-    // Tambahkan class error ke input
-    field.classList.add('error');
-
-    // Tampilkan pesan error
-    errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + message;
-    errorDiv.classList.add('show');
-
-    // Scroll ke field yang error
-    field.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-    // Focus ke field
-    setTimeout(() => field.focus(), 300);
-}
 
 // Helper function untuk clear semua error
 function clearErrors() {
@@ -653,17 +722,25 @@ function showError(fieldId, messageKey) {
     const field = document.getElementById(fieldId);
     const errorDiv = document.getElementById('error_' + fieldId);
 
-    field.classList.add('error');
-    errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + t(messageKey);
-    errorDiv.dataset.i18nError = messageKey;
+    if (field && errorDiv) {
+        field.classList.add('error');
+        errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + t(messageKey);
+        errorDiv.dataset.i18nError = messageKey;
 
-    // Shake animation
-    field.style.animation = 'none';
-    field.offsetHeight; // Trigger reflow
-    field.style.animation = 'shake 0.5s';
+        // Ensure the error message is visible
+        errorDiv.classList.add('show');
+
+        // Shake animation
+        field.style.animation = 'none';
+        field.offsetHeight; // Trigger reflow
+        field.style.animation = 'shake 0.5s';
+
+        // Scroll to field if not visible
+        field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
 
     // Focus to first error
-    setTimeout(() => field.focus(), 300);
+    setTimeout(() => { if (field) field.focus() }, 300);
 }
 
 // Validate Step 1
@@ -721,8 +798,9 @@ function validateStep1() {
         return false;
     }
 
-    // Validasi B2B Fields (jika kategori adalah B2B)
-    if (kategori === 'b2b') {
+    // Validasi B2B Fields (jika kategori adalah B2B / visible)
+    const b2bFields = document.getElementById('b2bFields');
+    if (b2bFields && b2bFields.classList.contains('show')) {
         const namaPerusahaan = document.getElementById('nama_perusahaan').value.trim();
         const posisiJabatan = document.getElementById('posisi_jabatan').value.trim();
 
@@ -1081,70 +1159,63 @@ function validateStep2() {
 
     // Iterate through all question sections
     document.querySelectorAll('.question-section').forEach(section => {
-        const isRequired = section.dataset.required === '1';
+        // Find the label to check for required * 
+        // Or better, check if ANY input inside has 'required' attribute (but custom inputs don't have it directly on the div)
+        // The Blade template logic:  {{ $q->is_required ? 'required' : '' }} on inputs.
+        // For custom inputs, we relied on Blade rendering <span class="required">*</span>
+
+        let isRequired = false;
+        // Check standard inputs
+        const requiredInput = section.querySelector('input[required], textarea[required], select[required]');
+        if (requiredInput) isRequired = true;
+
+        // Check label
+        if (section.querySelector('.required')) isRequired = true;
+
+        if (!isRequired) return;
+
         const questionId = section.dataset.questionId;
+        const errorDiv = document.getElementById('error_question_' + questionId);
 
         // Remove existing error
-        const errorDiv = document.getElementById('error_question_' + questionId);
         if (errorDiv) {
             errorDiv.classList.remove('show');
             errorDiv.innerHTML = '';
         }
 
-        if (!isRequired) return;
-
         let isAnswered = false;
 
-        // Check based on input types inside the section
         // 1. Text, Number, Textarea, Select
         const textInputs = section.querySelectorAll('input[type="text"], input[type="number"], textarea, select');
         textInputs.forEach(input => {
-            if (input.type === 'hidden') return; // Skip hidden inputs for now (handled separately or not main input)
+            if (input.type === 'hidden') return;
             if (input.value.trim() !== '') {
                 isAnswered = true;
             }
         });
 
-        // 2. Radio Buttons
-        const radioInputs = section.querySelectorAll('[data-radio]');
-        if (radioInputs.length > 0) {
-            // Check if any radio in this group is selected
-            radioInputs.forEach(radio => {
-                if (radio.classList.contains('selected')) {
-                    isAnswered = true;
-                }
-            });
-        }
-
-        // 3. Checkboxes (Furniture Cards / Standard Checkboxes)
-        const checkboxInputs = section.querySelectorAll('[data-checkbox]');
-        if (checkboxInputs.length > 0) {
-            // Check if any checkbox in this group is selected
-            checkboxInputs.forEach(checkbox => {
-                if (checkbox.classList.contains('selected')) {
-                    isAnswered = true;
-                }
-            });
+        // 2. Radio/Checkbox Custom
+        const customSelected = section.querySelectorAll('.selected');
+        if (customSelected.length > 0) {
+            isAnswered = true;
         }
 
         if (!isAnswered) {
             isValid = false;
             if (errorDiv) {
-                // Use a generic "This field is required" message or specific key
-                // Ideally, backend provides a key like 'error_required'
-                // For now, hardcode or use a common key
-                const msg = t('error_jenis_bisnis_required').replace('Jenis Bisnis', 'Pertanyaan ini'); // Hacky fallback or create new key
-                // Better: Use a generic required message.
-                // Let's check `translations` object in memory if possible?
-                // Or just hardcode "Wajib diisi" / "Required" based on lang
-                const reqMsg = currentLang === 'id' ? 'Pertanyaan ini wajib diisi' : 'This question is required';
-
+                // Use generic "Required" message
+                const reqMsg = currentLang === 'id' ? 'Pertanyaan ini wajib diisi' : 'This field is required';
                 errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + reqMsg;
                 errorDiv.classList.add('show');
             }
             if (!firstErrorElement) {
                 firstErrorElement = section;
             }
+
+            // Add shake animation to the section or inputs
+            section.style.animation = 'none';
+            section.offsetHeight; // Trigger reflow
+            section.style.animation = 'shake 0.5s';
         }
     });
 

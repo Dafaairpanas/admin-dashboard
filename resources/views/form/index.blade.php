@@ -28,17 +28,13 @@
 <body>
     <div class="main-container">
         <!-- Header -->
-        <div class="header">
-            <div class="logo">
-                <img src="{{ asset('images/logos/broliving.svg') }}" alt="Bro Living" class="logo-img">
+        <div class="header" style="justify-content: center; position: relative;">
+            <div class="logo" style="margin: 0;">
+                <img src="{{ asset('images/logos/broliving.svg') }}" alt="Bro Living" class="logo-img"
+                    style="height: 40px;">
             </div>
-            <div class="header-right">
-                <div class="progress-section">
-                    <div class="progress-bar-custom">
-                        <div class="progress-bar-fill" id="progressBar" style="width: 50%"></div>
-                    </div>
-                    <div class="progress-text" id="progressText">Step 1 of 2</div>
-                </div>
+
+            <div class="header-right" style="position: absolute; right: 2rem;">
                 <div class="language-selector">
                     <div class="language-dropdown" id="langDropdown">
                         <div class="selected-lang" id="selectedLang">
@@ -143,11 +139,11 @@
         // Initialize visitor translations from backend
         window.visitorTranslations = {
             @foreach ($visitors as $visitor)
-                                        "{{ $visitor['id'] }}": {
+                                            "{{ $visitor['id'] }}": {
                     "id": "{{ $master_visitor_category_translations->where('visitor_category_id', $visitor['id'])->where('language_code', 'id')->first()->name ?? $visitor['name'] }}",
                     "en": "{{ $master_visitor_category_translations->where('visitor_category_id', $visitor['id'])->where('language_code', 'en')->first()->name ?? $visitor['name'] }}"
                 }
-                                        {{ $loop->last ? '' : ',' }}
+                                            {{ $loop->last ? '' : ',' }}
             @endforeach
         };
     </script>

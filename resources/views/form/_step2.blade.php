@@ -191,6 +191,12 @@
         </div>
     </div>
 
+    <div class="mb-4" style="width: 100%;">
+        <div class="progress-bar-custom">
+            <div class="progress-bar-fill" style="width: 100%"></div>
+        </div>
+    </div>
+
     {{-- Buttons --}}
     <div class="buttons-container">
         <button type="button" class="btn btn-secondary-custom" onclick="prevStep()"

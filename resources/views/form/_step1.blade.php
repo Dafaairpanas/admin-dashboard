@@ -52,12 +52,18 @@
         {{-- Conditional B2B Fields --}}
         <div class="conditional-fields" id="b2bFields">
             <div class="mb-3">
-                <label class="form-label-custom" data-i18n="nama_perusahaan">Nama perusahaan</label>
+                <label class="form-label-custom">
+                    <span data-i18n="nama_perusahaan">Nama perusahaan</span>
+                    <span class="required">*</span>
+                </label>
                 <input type="text" name="company_name" id="nama_perusahaan" class="form-control form-control-custom">
                 <div class="error-message" id="error_nama_perusahaan"></div>
             </div>
             <div class="mb-3">
-                <label class="form-label-custom" data-i18n="posisi_jabatan">Posisi / Jabatan</label>
+                <label class="form-label-custom">
+                    <span data-i18n="posisi_jabatan">Posisi / Jabatan</span>
+                    <span class="required">*</span>
+                </label>
                 <input type="text" name="job_title" id="posisi_jabatan" class="form-control form-control-custom">
                 <div class="error-message" id="error_posisi_jabatan"></div>
             </div>
@@ -106,6 +112,12 @@
             <div class="error-message" id="error_jenis_bisnis_lainnya"></div>
         </div>
         <div class="error-message" id="error_jenis_bisnis"></div>
+    </div>
+
+    <div class="mb-4" style="width: 100%;">
+        <div class="progress-bar-custom">
+            <div class="progress-bar-fill" style="width: 50%"></div>
+        </div>
     </div>
 
     <div class="buttons-container">
