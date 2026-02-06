@@ -19,6 +19,8 @@ require __DIR__ . '/auth.php';
 // Form routes untuk user/visitor (tanpa auth)
 Route::get('/', [FormController::class, 'index'])->name('form.index');
 Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
+Route::get('/verify-email/{token}', [FormController::class, 'verifyEmail'])->name('form.verify');
+Route::post('/form/save-step1', [FormController::class, 'saveStep1'])->name('form.saveStep1');
 Route::post('/form/submit', [FormController::class, 'submit'])->name('form.submit');
 
 // Permission denied route
@@ -58,7 +60,7 @@ Route::group(['middleware' => ['auth', 'role.uac']], function () {
     // Submissions - code: SUBMISSIONS
     Route::prefix('submissions')->group(function () {
         Route::get('/', [AdminSubmissionController::class, 'index'])->name('SUBMISSIONS.read');
-        Route::get('/{id}/show', [AdminSubmissionController::class, 'show'])->name('SUBMISSIONS.read');
+        Route::get('/{id}/show', [AdminSubmissionController::class, 'show'])->name('SUBMISSIONS.update');
         Route::delete('/{id}/destroy', [AdminSubmissionController::class, 'destroy'])->name('SUBMISSIONS.delete');
     });
 
@@ -75,7 +77,7 @@ Route::group(['middleware' => ['auth', 'role.uac']], function () {
         Route::prefix('roles')->group(function () {
             Route::get('/', [RoleController::class, 'index'])->name('ROLES.read');
             Route::get('/{id}/edit', [RoleController::class, 'edit'])->name('ROLES.update');
-            Route::post('/store', [RoleController::class, 'store'])->name('ROLES.create');
+            Route::post('/store', [RoleController::class, 'store'])->name('ROLES.store');
             Route::post('/{id}/update', [RoleController::class, 'update'])->name('ROLES.update.submit');
             Route::delete('/{id}/destroy', [RoleController::class, 'destroy'])->name('ROLES.delete');
         });

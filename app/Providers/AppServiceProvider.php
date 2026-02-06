@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +20,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Force URL scheme based on environment
+        if (config('app.env') === 'local') {
+            URL::forceScheme('http');
+        } else {
+            URL::forceScheme('https');
+        }
         // Share available languages to all views (for Topbar, etc)
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('languages')) {

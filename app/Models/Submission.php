@@ -23,7 +23,14 @@ class Submission extends Model
         'company_name',
         'job_title',
         'business_type',
+        'verification_token',
+        'verification_sent_at',
         'wa_verified_at',
+    ];
+
+    protected $casts = [
+        'verification_sent_at' => 'datetime',
+        'wa_verified_at' => 'datetime',
     ];
 
     public function refSurvey()

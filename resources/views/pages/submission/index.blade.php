@@ -64,7 +64,9 @@
                                     <th>Visitor Category</th>
                                     <th>Company</th>
                                     <th>Submitted At</th>
+                                    @if (\App\Helper::hasPermission('SUBMISSIONS', 'update') || \App\Helper::hasPermission('SUBMISSIONS', 'delete'))
                                     <th>Actions</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
@@ -77,20 +79,26 @@
                                         <td>{{ $submission['visitor_category_name'] ?? '-' }}</td>
                                         <td>{{ $submission['company_name'] ?? '-' }}</td>
                                         <td>{{ $submission['created_at'] }}</td>
+                                        @if (\App\Helper::hasPermission('SUBMISSIONS', 'update') || \App\Helper::hasPermission('SUBMISSIONS', 'delete'))
                                         <td>
-                                            <a href="{{ route('SUBMISSIONS.read', ['id' => $submission['id']]) }}"
-                                                class="btn btn-sm btn-soft-primary" title="View Details">
-                                                <i class="las la-eye"></i>
-                                            </a>
-                                            <form action="{{ route('SUBMISSIONS.delete', $submission['id']) }}" method="POST"
-                                                class="d-inline delete-form">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-soft-danger" title="Delete">
-                                                    <i class="las la-trash"></i>
-                                                </button>
-                                            </form>
+                                            @if (\App\Helper::hasPermission('SUBMISSIONS', 'update'))
+                                                <a href="{{ route('SUBMISSIONS.update', ['id' => $submission['id']]) }}"
+                                                    class="btn btn-sm btn-soft-primary" title="View Details">
+                                                    <i class="las la-eye"></i>
+                                                </a>
+                                            @endif
+                                            @if (\App\Helper::hasPermission('SUBMISSIONS', 'delete'))
+                                                <form action="{{ route('SUBMISSIONS.delete', $submission['id']) }}" method="POST"
+                                                    class="d-inline delete-form">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-soft-danger" title="Delete">
+                                                        <i class="las la-trash"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
                                         </td>
+                                        @endif
                                     </tr>
                                 @empty
                                     <tr>

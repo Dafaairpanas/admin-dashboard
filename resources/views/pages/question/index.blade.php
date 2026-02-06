@@ -67,7 +67,9 @@
                                     <th>Type</th>
                                     <th>Question Text ({{ strtoupper($defaultLang) }})</th>
                                     <th>Active</th>
+                                    @if(\App\Helper::hasPermission('QUESTIONS', 'update') || \App\Helper::hasPermission('QUESTIONS', 'delete'))
                                     <th class="text-end">Action</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
@@ -101,6 +103,7 @@
                                                 <i class="fas fa-times-circle text-danger"></i>
                                             @endif
                                         </td>
+                                        @IF(\App\Helper::hasPermission('QUESTIONS', 'update') || \App\Helper::hasPermission('QUESTIONS', 'delete'))
                                         <td class="text-end">
                                             @if(\App\Helper::hasPermission('QUESTIONS', 'update'))
                                                 <a href="{{ route('QUESTIONS.update.form', $q->id) }}"
@@ -120,6 +123,7 @@
                                                 </form>
                                             @endif
                                         </td>
+                                        @endif
                                     </tr>
                                 @empty
                                     <tr>

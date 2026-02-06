@@ -79,7 +79,9 @@
                                     <th>Name</th>
                                     <th>Status</th>
                                     <th>Default</th>
+                                    @if(\App\Helper::hasPermission('LANGUAGES', 'update') || \App\Helper::hasPermission('LANGUAGES', 'delete'))
                                     <th class="text-end">Action</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
@@ -106,6 +108,7 @@
                                                 <span class="badge bg-primary">Default</span>
                                             @endif
                                         </td>
+                                        @IF(\App\Helper::hasPermission('LANGUAGES', 'update') || \App\Helper::hasPermission('LANGUAGES', 'delete'))
                                         <td class="text-end">
                                             @if(\App\Helper::hasPermission('LANGUAGES', 'update'))
                                                 <button class="btn btn-sm btn-soft-info btn-edit" data-bs-toggle="modal"
@@ -128,6 +131,7 @@
                                                 </form>
                                             @endif
                                         </td>
+                                        @endif
                                     </tr>
                                 @empty
                                     <tr>

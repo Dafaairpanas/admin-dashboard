@@ -38,26 +38,38 @@ class QMenu
 
     public static function getAll($params)
     {
-        // Menu clickable adalah yang memiliki parent_id (child dari label sidebar)
-        // Menu label (header) tidak punya parent_id
-        $data = Model::withoutGlobalScopes()
-            ->whereNotNull('parent_id')
+        // Ambil semua menu
+        $allMenus = Model::withoutGlobalScopes()
             ->orderBy('urutan', 'asc')
             ->get();
-        // Data sudah benar: hanya menu dengan parent_id yang diambil
-        return [
-            'items' => $data->map(function ($item) {
+
+        // Pisahkan parent dan child menus
+        $parentMenus = $allMenus->whereNull('parent_id')->whereNull('url');
+        $childMenus = $allMenus->whereNotNull('parent_id')->whereNotNull('url');
+
+        // Grup child menus berdasarkan parent_id
+        $grouped = $childMenus->groupBy('parent_id')->map(function ($items) {
+            return $items->map(function ($item) {
                 return [
                     'id' => $item->id,
                     'name' => $item->name,
                     'parent_id' => $item->parent_id,
-                    'parent_name' => $item->parent ? $item->parent->name : null,
                     'url' => $item->url,
                     'code' => $item->code,
                     'urutan' => $item->urutan,
-                    'created_at' => Carbon::parse($item->created_at)->format('d-m-Y H:i:s'),
                 ];
-            })
+            })->toArray();
+        })->toArray();
+
+        // Buat struktur dengan nama parent sebagai key
+        $result = [];
+        foreach ($parentMenus as $parent) {
+            $parentName = $parent->name;
+            $result[$parentName] = $grouped[$parent->id] ?? [];
+        }
+
+        return [
+            'items' => $result
         ];
     }
 }

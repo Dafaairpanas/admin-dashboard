@@ -1,11 +1,40 @@
 @extends('layouts.vertical', ['title' => 'Roles'])
 
 @section('css')
+<style>
+    .permission-group {
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+    }
+    .permission-group:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    .permission-group-header {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.75rem;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .permission-item {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f8f9fa;
+    }
+    .permission-item:last-child {
+        border-bottom: none;
+    }
+    .permission-label {
+        font-weight: 500;
+        color: #6c757d;
+    }
+</style>
 @endsection
 
 @section('content')
-
-
+    <!-- Breadcrumb dan Header -->
     <div class="row">
         <div class="col-sm-12">
             <div class="page-title-box d-md-flex justify-content-md-between align-items-center">
@@ -20,6 +49,7 @@
         </div>
     </div>
 
+    <!-- Table Card -->
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -53,9 +83,15 @@
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     @endif
+                    @if(session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
                     @if($errors->any())
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <ul>
+                            <ul class="mb-0">
                                 @foreach ($errors->all() as $error)
                                     <li>{{ $error }}</li>
                                 @endforeach
@@ -68,15 +104,19 @@
                         <table class="table mb-0">
                             <thead class="table-light">
                                 <tr>
+                                    <th>No.</th>
                                     <th>Name</th>
                                     <th>Badge Color</th>
                                     <th>Created At</th>
+                                    @if (\App\Helper::hasPermission('ROLES', 'update') || \App\Helper::hasPermission('ROLES', 'delete'))
                                     <th class="text-end">Action</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($roles as $index => $role)
                                     <tr>
+                                        <td>{{ $attributes['from'] + $index }}</td>
                                         <td>{{ $role['name'] }}</td>
                                         <td>
                                             <span
@@ -87,6 +127,7 @@
                                             </span>
                                         </td>
                                         <td>{{ $role['created_at'] }}</td>
+                                        @if (\App\Helper::hasPermission('ROLES', 'update') || \App\Helper::hasPermission('ROLES', 'delete'))
                                         <td class="text-end">
                                             @if(\App\Helper::hasPermission('ROLES', 'update'))
                                             <button class="btn btn-sm btn-soft-info btn-edit" data-bs-toggle="modal"
@@ -108,10 +149,11 @@
                                             </form>
                                             @endif
                                         </td>
+                                        @endif
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="3" class="text-center">No roles found.</td>
+                                        <td colspan="4" class="text-center">No roles found.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -130,70 +172,10 @@
         </div>
     </div>
 
-    @php
-        try {
-            // Query langsung untuk menu clickable (yang memiliki parent_id)
-            // Menu tanpa parent_id adalah label sidebar, bukan clickable menu
-            $clickableMenus = \App\Models\Menu::withoutGlobalScopes()
-                ->whereNotNull('parent_id')
-                ->orderBy('urutan', 'asc')
-                ->get()
-                ->map(function ($item) {
-                    return [
-                        'id' => $item->id,
-                        'name' => $item->name,
-                        'parent_id' => $item->parent_id,
-                        'parent_name' => $item->parent ? $item->parent->name : null,
-                        'url' => $item->url,
-                        'code' => $item->code,
-                    ];
-                });
-            
-            $groupedMenus = collect($clickableMenus)->groupBy('parent_name');
-        } catch (\Throwable $e) {
-            dd($e->getMessage());
-        }
-    @endphp
-
-    <style>
-        .permission-group {
-            margin-bottom: 1.5rem;
-        }
-        .permission-group-header {
-            background-color: #f3f6f9;
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            color: #495057;
-            margin-bottom: 0.5rem;
-            font-size: 0.95rem;
-            border-left: 4px solid #6c757d;
-        }
-        .permission-item {
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid #f1f1f1;
-            transition: background-color 0.2s;
-        }
-        .permission-item:hover {
-            background-color: #fafafa;
-        }
-        .permission-item:last-child {
-            border-bottom: none;
-        }
-        .permission-label {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: #333;
-        }
-        .form-check-inline .form-check-input {
-            margin-top: 0.15rem;
-        }
-    </style>
-
     <!-- Add Role Modal -->
     <div class="modal fade" id="addRoleModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
-            <form action="{{ route('ROLES.create') }}" method="POST">
+            <form action="{{ route('ROLES.store') }}" method="POST">
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">
@@ -206,19 +188,19 @@
                             <input type="text" name="name" placeholder="Role Name" class="form-control" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Badge Color (Hex)</label>
+                            <label class="form-label">Badge Color</label>
                             <input type="color" name="badge_color" placeholder="Badge Color"
                                 class="form-control form-control-color" value="#6c757d" title="Choose your color">
                         </div>
 
                         {{-- Permission Section --}}
                         <div class="mb-3">
-                            <label class="form-label fw-bold mb-3">Akses Menu</label>
-                            <div class="border rounded" style="max-height: 50vh; overflow-y: auto;">
+                            <label class="form-label fw-bold mb-3">Menu Access</label>
+                            <div class="border rounded p-3" style="max-height: 50vh; overflow-y: auto;">
                                 @forelse($groupedMenus as $parentName => $menuGroup)
-                                    <div class="permission-group px-3 pt-3">
+                                    <div class="permission-group">
                                         <div class="permission-group-header">
-                                            {{ $parentName ?: 'Main Modules' }}
+                                            {{ $parentName }}
                                         </div>
                                         <div>
                                             @foreach($menuGroup as $menu)
@@ -230,11 +212,11 @@
                                                         <div class="d-flex justify-content-end gap-3 flex-wrap">
                                                             @foreach(['create', 'read', 'update', 'delete'] as $perm)
                                                                 <div class="form-check form-check-inline m-0">
-                                                                    <input class="form-check-input" type="checkbox" 
-                                                                        name="permissions[{{ $menu['id'] }}][{{ $perm }}]" 
-                                                                        value="1" 
+                                                                    <input class="form-check-input" type="checkbox"
+                                                                        name="permissions[{{ $menu['id'] }}][{{ $perm }}]"
+                                                                        value="1"
                                                                         id="add_{{ $perm }}_{{ $menu['id'] }}">
-                                                                    <label class="form-check-label small text-muted text-capitalize" 
+                                                                    <label class="form-check-label small text-muted text-capitalize"
                                                                         for="add_{{ $perm }}_{{ $menu['id'] }}">{{ $perm }}</label>
                                                                 </div>
                                                             @endforeach
@@ -250,8 +232,6 @@
                                         <p>No actionable menus found.</p>
                                     </div>
                                 @endforelse
-                            </div>
-                        </div>
                             </div>
                         </div>
                     </div>
@@ -281,41 +261,45 @@
                                 required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Badge Color (Hex)</label>
+                            <label class="form-label">Badge Color</label>
                             <input type="color" name="badge_color" placeholder="Badge Color" id="edit_badge_color"
                                 class="form-control form-control-color" title="Choose your color">
                         </div>
 
                         {{-- Permission Section --}}
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Akses Menu</label>
-                            <div class="border rounded p-3" id="editPermissionsContainer">
+                            <label class="form-label fw-bold mb-3">Menu Access</label>
+                            <div class="border rounded p-3" style="max-height: 50vh; overflow-y: auto;">
                                 @foreach($groupedMenus as $parentName => $menuGroup)
-                                    <div class="mb-3">
-                                        <h6 class="fw-semibold text-primary border-bottom pb-2 mb-2">{{ $parentName ?: 'Other' }}</h6>
-                                        @foreach($menuGroup as $menu)
-                                            <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
-                                                <span class="me-3" style="min-width: 120px;">{{ $menu['name'] }}</span>
-                                                <div class="d-flex gap-3">
-                                                    <div class="form-check form-check-inline">
-                                                        <input class="form-check-input edit-perm" type="checkbox" name="permissions[{{ $menu['id'] }}][create]" value="1" id="edit_create_{{ $menu['id'] }}" data-menu="{{ $menu['id'] }}" data-perm="create">
-                                                        <label class="form-check-label small" for="edit_create_{{ $menu['id'] }}">Create</label>
+                                    <div class="permission-group">
+                                        <div class="permission-group-header">
+                                            {{ $parentName }}
+                                        </div>
+                                        <div>
+                                            @foreach($menuGroup as $menu)
+                                                <div class="permission-item row align-items-center">
+                                                    <div class="col-md-4">
+                                                        <span class="permission-label">{{ $menu['name'] }}</span>
                                                     </div>
-                                                    <div class="form-check form-check-inline">
-                                                        <input class="form-check-input edit-perm" type="checkbox" name="permissions[{{ $menu['id'] }}][read]" value="1" id="edit_read_{{ $menu['id'] }}" data-menu="{{ $menu['id'] }}" data-perm="read">
-                                                        <label class="form-check-label small" for="edit_read_{{ $menu['id'] }}">Read</label>
-                                                    </div>
-                                                    <div class="form-check form-check-inline">
-                                                        <input class="form-check-input edit-perm" type="checkbox" name="permissions[{{ $menu['id'] }}][update]" value="1" id="edit_update_{{ $menu['id'] }}" data-menu="{{ $menu['id'] }}" data-perm="update">
-                                                        <label class="form-check-label small" for="edit_update_{{ $menu['id'] }}">Update</label>
-                                                    </div>
-                                                    <div class="form-check form-check-inline">
-                                                        <input class="form-check-input edit-perm" type="checkbox" name="permissions[{{ $menu['id'] }}][delete]" value="1" id="edit_delete_{{ $menu['id'] }}" data-menu="{{ $menu['id'] }}" data-perm="delete">
-                                                        <label class="form-check-label small" for="edit_delete_{{ $menu['id'] }}">Delete</label>
+                                                    <div class="col-md-8">
+                                                        <div class="d-flex justify-content-end gap-3 flex-wrap">
+                                                            @foreach(['create', 'read', 'update', 'delete'] as $perm)
+                                                                <div class="form-check form-check-inline m-0">
+                                                                    <input class="form-check-input edit-perm" type="checkbox"
+                                                                        name="permissions[{{ $menu['id'] }}][{{ $perm }}]"
+                                                                        value="1"
+                                                                        id="edit_{{ $perm }}_{{ $menu['id'] }}"
+                                                                        data-menu="{{ $menu['id'] }}"
+                                                                        data-perm="{{ $perm }}">
+                                                                    <label class="form-check-label small text-muted text-capitalize"
+                                                                        for="edit_{{ $perm }}_{{ $menu['id'] }}">{{ $perm }}</label>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        @endforeach
+                                            @endforeach
+                                        </div>
                                     </div>
                                 @endforeach
                             </div>

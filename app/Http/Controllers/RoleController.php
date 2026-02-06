@@ -22,11 +22,11 @@ class RoleController extends Controller
         ];
 
         $data = QRole::getAllData($params);
-        $menus = QMenu::getAll($params);
+        $menusData = QMenu::getAll($params);
 
         return view('pages.role.index', [
             'roles' => $data['items'],
-            'menus' => $menus['items'],
+            'groupedMenus' => $menusData['items'],
             'attributes' => $data['attributes'],
         ]);
     }

@@ -76,12 +76,12 @@
                     <div class="form-section">
                         <label class="form-label-custom">Business Type</label>
                         @php
-                            $businessTypes = is_string($submission->business_type) 
-                                ? json_decode($submission->business_type, true) 
+                            $businessTypes = is_string($submission->business_type)
+                                ? json_decode($submission->business_type, true)
                                 : $submission->business_type;
-                            
+
                             $businessTypeArray = [];
-                            
+
                             $businessTypeMapping = [
                                 'hotel_resort' => 'Hotel / Resort',
                                 'villa' => 'Villa',
@@ -97,7 +97,7 @@
                                     $businessTypeArray[] = $label;
                                 }
                             }
-                            
+
                             $businessTypeText = !empty($businessTypeArray) ? implode(', ', $businessTypeArray) : '-';
                         @endphp
                         <input type="text" class="form-control form-control-custom" value="{{ $businessTypeText }}" readonly>
@@ -138,7 +138,7 @@
 
                                 @if($question->refTypeQuestion->code == 'text')
                                     {{-- Text Input --}}
-                                    <input type="text" class="form-control form-control-custom" 
+                                    <input type="text" class="form-control form-control-custom"
                                            value="{{ $firstAnswer->answer_text }}" readonly>
 
                                 @elseif($question->refTypeQuestion->code == 'textarea')
@@ -147,7 +147,7 @@
 
                                 @elseif($question->refTypeQuestion->code == 'number')
                                     {{-- Number Input --}}
-                                    <input type="number" class="form-control form-control-custom" 
+                                    <input type="number" class="form-control form-control-custom"
                                            value="{{ $firstAnswer->answer_text }}" readonly>
 
                                 @elseif($question->refTypeQuestion->code == 'radio')
@@ -247,7 +247,7 @@
                                     <i class="las la-exclamation-triangle"></i> Question #{{ $questionId }} (Permanently Deleted)
                                 </label>
                                 @if($firstAnswer->answer_text)
-                                    <input type="text" class="form-control form-control-custom" 
+                                    <input type="text" class="form-control form-control-custom"
                                            value="{{ $firstAnswer->answer_text }}" readonly>
                                 @else
                                     <p class="text-muted mb-0">Option ID: {{ $firstAnswer->question_option_id }}</p>
@@ -260,10 +260,11 @@
                 {{-- Action Buttons --}}
                 <div class="text-center mt-4">
                     <a href="{{ route('SUBMISSIONS.read') }}" class="btn btn-secondary btn-lg">
-                        <i class="las la-arrow-left me-1"></i> Back to List
+                        <i class="las la-arrow-left me-1"></i> Back
                     </a>
-                    <form action="{{ route('SUBMISSIONS.delete', $submission->id) }}" 
-                          method="POST" 
+                    @if(\App\Helper::hasPermission('SUBMISSIONS', 'delete'))
+                    <form action="{{ route('SUBMISSIONS.delete', $submission->id) }}"
+                          method="POST"
                           class="d-inline"
                           onsubmit="return confirm('Are you sure you want to delete this submission?')">
                         @csrf
@@ -272,6 +273,7 @@
                             <i class="las la-trash me-1"></i> Delete
                         </button>
                     </form>
+                    @endif
                 </div>
             </div>
         </div>

@@ -69,7 +69,9 @@
                                     <th>Email</th>
                                     <th>Role</th>
                                     <th>Created At</th>
+                                    @if(\App\Helper::hasPermission('USERS', 'update') || \App\Helper::hasPermission('USERS', 'delete'))
                                     <th class="text-end">Action</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
@@ -95,6 +97,7 @@
                                             @endif
                                         </td>
                                         <td>{{ $user['created_at'] }}</td>
+                                        @if(\App\Helper::hasPermission('USERS', 'update') || \App\Helper::hasPermission('USERS', 'delete'))
                                         <td class="text-end">
                                             @if(\App\Helper::hasPermission('USERS', 'update'))
                                                 <button class="btn btn-sm btn-soft-info btn-edit" data-bs-toggle="modal"
@@ -116,6 +119,7 @@
                                                 </form>
                                             @endif
                                         </td>
+                                        @endif
                                     </tr>
                                 @empty
                                     <tr>

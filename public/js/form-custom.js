@@ -632,10 +632,10 @@ function restoreFormState() {
                                     checkbox.innerHTML = '<i class="fas fa-check" style="color: white; font-size: 12px;"></i>';
                                 }
 
-                                // Sync with formData if using the handler logic? 
-                                // The handler uses formData global for some logic, but dynamic questions mostly rely on visual class 'selected' 
+                                // Sync with formData if using the handler logic?
+                                // The handler uses formData global for some logic, but dynamic questions mostly rely on visual class 'selected'
                                 // until 'collectDynamicQuestionData' is called.
-                                // However, for consistency with 'click' handler logic (e.g. max select check), 
+                                // However, for consistency with 'click' handler logic (e.g. max select check),
                                 // we might want to manually populate similar structures if we used them.
                                 // But 'collectDynamicQuestionData' simply reads '.selected' classes, so this visual restore is sufficient for submission.
                             }
@@ -673,21 +673,81 @@ function updateProgress() {
     });
 }
 
-// Navigate to next step
+// Navigate to next step with AJAX save
 function nextStep() {
     if (validateStep1()) {
-        // Save Step 1 data to localStorage
-        saveFormState();
+        // Show loading state
+        const nextButton = document.querySelector('[onclick="nextStep()"]');
+        const originalText = nextButton.innerHTML;
+        nextButton.disabled = true;
+        nextButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (currentLang === 'id' ? 'Menyimpan...' : 'Saving...');
 
-        document.getElementById('step1').classList.remove('active');
-        document.getElementById('step2').classList.add('active');
-        currentStep = 2;
-        updateProgress();
+        // Prepare form data
+        const formData = new FormData();
+        formData.append('full_name', document.getElementById('nama_lengkap').value);
+        formData.append('phone_number', document.getElementById('whatsapp').value);
+        formData.append('email', document.getElementById('email').value);
+        formData.append('visitor_category_id', document.getElementById('kategori_pengunjung').value);
+        formData.append('company_name', document.getElementById('nama_perusahaan').value);
+        formData.append('job_title', document.getElementById('posisi_jabatan').value);
 
-        // Save current step
-        localStorage.setItem(FORM_STATE_KEY, currentStep);
+        // Business type array
+        const businessTypeInputs = document.querySelectorAll('input[name="business_type[]"]');
+        businessTypeInputs.forEach(input => {
+            formData.append('business_type[]', input.value);
+        });
 
-        window.scrollTo(0, 0);
+        // Jenis bisnis lainnya
+        const lainnyaInput = document.getElementById('jenis_bisnis_lainnya').value;
+        if (lainnyaInput) {
+            formData.append('jenis_bisnis_lainnya', lainnyaInput);
+        }
+
+        // Get CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+        // Send AJAX request
+        fetch('/form/save-step1', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Save to localStorage
+                saveFormState();
+
+                // Move to step 2
+                document.getElementById('step1').classList.remove('active');
+                document.getElementById('step2').classList.add('active');
+                currentStep = 2;
+                updateProgress();
+
+                // Save current step
+                localStorage.setItem(FORM_STATE_KEY, currentStep);
+
+                window.scrollTo(0, 0);
+
+                // Show success message (optional)
+                console.log('Step 1 data saved successfully');
+            } else {
+                // Show error
+                alert(data.message || (currentLang === 'id' ? 'Terjadi kesalahan saat menyimpan data' : 'Error saving data'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert(currentLang === 'id' ? 'Terjadi kesalahan koneksi' : 'Connection error');
+        })
+        .finally(() => {
+            // Restore button state
+            nextButton.disabled = false;
+            nextButton.innerHTML = originalText;
+        });
     }
 }
 
@@ -1159,7 +1219,7 @@ function validateStep2() {
 
     // Iterate through all question sections
     document.querySelectorAll('.question-section').forEach(section => {
-        // Find the label to check for required * 
+        // Find the label to check for required *
         // Or better, check if ANY input inside has 'required' attribute (but custom inputs don't have it directly on the div)
         // The Blade template logic:  {{ $q->is_required ? 'required' : '' }} on inputs.
         // For custom inputs, we relied on Blade rendering <span class="required">*</span>
@@ -1295,3 +1355,127 @@ function collectDynamicQuestionData() {
     });
 }
 
+// Detect page refresh and clear form
+window.addEventListener('load', function() {
+    // Check if page was refreshed (not navigated to)
+    const isPageRefresh = performance.navigation.type === 1 ||
+                          performance.getEntriesByType('navigation')[0]?.type === 'reload';
+
+    if (isPageRefresh) {
+        console.log('Page refreshed - clearing form state');
+        clearFormState();
+        clearFormData();
+    }
+});
+
+// Clear all form data and reset to initial state
+function clearFormData() {
+    // Reset Step 1 fields
+    const step1Fields = ['nama_lengkap', 'whatsapp', 'email', 'kategori_pengunjung', 'nama_perusahaan', 'posisi_jabatan', 'jenis_bisnis_lainnya'];
+    step1Fields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) field.value = '';
+    });
+
+    // Reset formData object
+    formData = {
+        business_type: [],
+        kebutuhan_furniture: [],
+        estimasi_jumlah: [],
+        preferensi_brand: []
+    };
+
+    // Remove all selected states from radio buttons
+    document.querySelectorAll('[data-radio].selected').forEach(item => {
+        item.classList.remove('selected');
+    });
+
+    // Remove all selected states from checkboxes
+    document.querySelectorAll('[data-checkbox].selected').forEach(item => {
+        item.classList.remove('selected');
+        const checkbox = item.querySelector('.option-checkbox');
+        if (checkbox) {
+            checkbox.style.backgroundColor = '';
+            checkbox.style.borderColor = '';
+            checkbox.innerHTML = '';
+        }
+    });
+
+    // Hide B2B fields
+    const b2bFields = document.getElementById('b2bFields');
+    if (b2bFields) {
+        b2bFields.classList.remove('show');
+    }
+
+    // Hide Lainnya input
+    const lainnyaInput = document.getElementById('lainnyaInput');
+    if (lainnyaInput) {
+        lainnyaInput.classList.remove('show');
+    }
+
+    // Remove all hidden inputs for business_type
+    document.querySelectorAll('input[name="business_type[]"]').forEach(input => {
+        input.remove();
+    });
+
+    // Clear all errors
+    clearErrors();
+
+    // Reset to step 1
+    currentStep = 1;
+    document.getElementById('step1')?.classList.add('active');
+    document.getElementById('step2')?.classList.remove('active');
+    updateProgress();
+
+    // Clear Step 2 dynamic questions
+    clearDynamicQuestions();
+}
+
+// Clear dynamic questions in Step 2
+function clearDynamicQuestions() {
+    // Reset text inputs
+    document.querySelectorAll('input[name^="question_"]:not([type="hidden"]), textarea[name^="question_"]').forEach(input => {
+        input.value = '';
+    });
+
+    // Reset select/dropdown
+    document.querySelectorAll('select[name^="question_"]').forEach(select => {
+        select.selectedIndex = 0;
+    });
+
+    // Remove selected state from custom radio/checkbox
+    document.querySelectorAll('[data-radio^="question_"].selected, [data-checkbox^="question_"].selected').forEach(item => {
+        item.classList.remove('selected');
+
+        const radio = item.querySelector('.option-radio');
+        if (radio) {
+            radio.style.backgroundColor = '';
+            radio.style.borderColor = '';
+            radio.innerHTML = '';
+        }
+
+        const checkbox = item.querySelector('.option-checkbox');
+        if (checkbox) {
+            checkbox.style.backgroundColor = '';
+            checkbox.style.borderColor = '';
+            checkbox.innerHTML = '';
+        }
+    });
+
+    // Remove dynamic hidden inputs
+    document.querySelectorAll('input[name^="question_"][data-dynamic="true"]').forEach(input => {
+        input.remove();
+    });
+
+    // Clear consent
+    const consentInput = document.getElementById('consentInput');
+    const consentBox = document.getElementById('consentBox');
+    if (consentInput) {
+        consentInput.value = '';
+    }
+    if (consentBox) {
+        consentBox.innerHTML = '';
+        consentBox.style.backgroundColor = '';
+        consentBox.style.borderColor = '';
+    }
+}
