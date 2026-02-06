@@ -695,22 +695,161 @@ body {
 }
 
 /* Footer */
+/* Footer Restructure */
 .footer {
     background: #000000;
     color: white;
-    padding: 24px 20px;
+    padding: 40px 20px;
+    /* Matched to new design padding */
     text-align: center;
     margin-top: auto;
 }
 
-.footer-contact {
-    font-size: 14px;
-    margin-bottom: 8px;
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    /* Stack links and address vertically */
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    /* Gap between links section and address */
+    margin-bottom: 30px;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 60px;
+}
+
+.footer-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: white !important;
+    text-decoration: none !important;
+    transition: transform 0.3s ease;
+}
+
+.footer-item:hover {
+    transform: scale(1.05);
+    /* Restore slight scale effect */
+}
+
+/* Icons */
+.footer-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.footer-icon i {
+    color: var(--primary-orange);
+    /* Brand color override */
+    font-size: 18px;
+}
+
+/* Specific larger size for location icon if requested */
+.footer-icon.location i {
+    font-size: 22px;
+    margin-left: 4px;
+}
+
+.footer-text {
+    font-size: 16px;
+    color: #fff;
+    text-align: left;
+    /* Ensure text aligns properly */
+}
+
+/* Vertical Divider */
+.footer-divider {
+    width: 2px;
+    height: 30px;
+    background: #333;
 }
 
 .footer-credit {
+    text-align: center;
+    padding-top: 30px;
+    border-top: 1px solid #222;
+    color: #888;
     font-size: 12px;
-    color: #ccc;
+}
+
+.footer-address {
+    max-width: 500px;
+    width: 100%;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.footer-address .footer-text {
+    text-align: left;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .footer-content {
+        align-items: center;
+        /* Center everything on mobile too, or keep left? Standard mobile is usually centered or stacked left. Previous was left. */
+        gap: 20px;
+    }
+
+    .footer-links {
+        flex-direction: column;
+        align-items: flex-start;
+        /* Stack email and phone */
+        width: 100%;
+        gap: 20px;
+    }
+
+    .footer-divider {
+        display: none;
+    }
+
+    .footer-item {
+        width: 100%;
+        justify-content: flex-start;
+        /* Align item content start */
+    }
+
+    .footer-address {
+        /* Ensure address also aligns left */
+        width: 100%;
+        justify-content: flex-start;
+        align-items: flex-start;
+        /* Align icon to top */
+    }
+
+    .footer-address .footer-text {
+        text-align: left;
+        line-height: 1.5;
+        /* ≈ 21px */
+    }
+
+    /* Adjust icon position for top alignment */
+    .footer-address .footer-icon {
+        height: 21px;
+        /* Match text line-height */
+        width: 24px;
+        margin-top: 0;
+        align-items: center;
+        /* Center icon within the line height */
+    }
+
+    .footer-text {
+        font-size: 14px;
+        /* Maintain readable size for mobile */
+    }
 }
 
 /* Step visibility with animation */
@@ -900,18 +1039,32 @@ body {
 
     /* Conditional fields mobile */
     .conditional-fields {
-        padding-left: 16px;
+        padding-left: 0;
+        /* Remove indentation on mobile to maximize width */
         margin-top: 10px;
+        border-left: 3px solid #e9ecef;
+        /* Add subtle border indicator instead */
+        padding-left: 12px;
+        /* Small padding from border */
     }
 
     .lainnya-input-container {
-        padding-left: 16px;
+        padding-left: 0;
+    }
+
+    .conditional-fields .form-label-custom,
+    .lainnya-input-container .form-label-custom {
+        font-size: 13px !important;
+        /* Force same size as other labels */
+        margin-bottom: 6px;
     }
 
     .conditional-fields .form-control-custom,
     .lainnya-input-container .form-control-custom {
         min-height: 50px;
         padding: 12px 14px;
+        width: 100%;
+        /* Ensure full width */
     }
 
     .conditional-fields input[type="text"].form-control-custom,
@@ -1248,5 +1401,29 @@ body {
 
     .success-modal-message {
         font-size: 14px;
+    }
+}
+
+/* Responsive Footer Alignment (< 768px) */
+@media (max-width: 767px) {
+    .footer {
+        text-align: left;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .footer-contact {
+        align-items: flex-start;
+    }
+
+    .footer-links {
+        justify-content: flex-start;
+    }
+
+    .footer-address {
+        margin-left: 0;
+        margin-right: 0;
+        text-align: left;
+        max-width: 100%;
     }
 }

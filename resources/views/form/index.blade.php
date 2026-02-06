@@ -23,6 +23,62 @@
     <link href="{{ asset('css/form-custom.css') }}" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/mobius1-selectr@latest/dist/selectr.min.js"
         type="text/javascript"></script>
+    <style>
+        /* Mobile Responsive Header Fix */
+        @media (max-width: 768px) {
+            .header {
+                display: flex !important;
+                flex-direction: row !important;
+                /* Force row to keep side-by-side */
+                justify-content: space-between !important;
+                align-items: center !important;
+                padding: 0 10px;
+                gap: 10px;
+                /* Space between logo and flag */
+            }
+
+            .header-right {
+                position: relative !important;
+                right: auto !important;
+                width: auto !important;
+                /* Prevent full width forcing wrap */
+                flex: 0 1 auto !important;
+                /* Prevent expansion */
+                order: 2 !important;
+                /* Ensure it stays after logo */
+                margin-top: 0 !important;
+                /* Remove any margin */
+            }
+
+            .logo {
+                margin: 0 !important;
+            }
+
+            .logo-img {
+                height: 40px !important;
+                /* Resize logo as requested */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo-img {
+                height: 42px !important;
+                /* Even smaller on very small screens */
+            }
+        }
+
+        /* Fix dropdown position on mobile */
+        @media (max-width: 768px) {
+            .language-options {
+                right: 0 !important;
+                left: auto !important;
+                min-width: 150px !important;
+                /* Compact width for mobile */
+                transform: translate(0, 10px) !important;
+                /* Reset any centering transforms */
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -126,10 +182,41 @@
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="footer-contact">
-            hello@brolivingid.com | 081234567890 | Pati
-        </div>
-        <div class="footer-credit" data-i18n="footer_credit">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <!-- Email -->
+                    <a href="mailto:hello@brolivingid.com" class="footer-item">
+                        <div class="footer-icon email">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <span class="footer-text">hello@brolivingid.com</span>
+                    </a>
+
+                    <div class="footer-divider"></div>
+
+                    <!-- WhatsApp -->
+                    <a href="https://wa.me/6281234567890" target="_blank" class="footer-item">
+                        <div class="footer-icon phone">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                        <span class="footer-text">081234567890</span>
+                    </a>
+                </div>
+
+                <!-- Address -->
+                <a href="https://maps.app.goo.gl/XfroFeK7AdnuCBGN8" target="_blank" class="footer-item footer-address">
+                    <div class="footer-icon location">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <span class="footer-text">Jl. Raya Juwana - Pati, Area Sawah, Mintomulyo, Kec. Pati, Kabupaten Pati,
+                        Jawa Tengah 59185</span>
+                </a>
+            </div>
+
+            <div class="footer-credit" data-i18n="footer_credit">
+                Made by Rajawali Perkasa Furniture
+            </div>
         </div>
     </footer>
 
@@ -139,11 +226,11 @@
         // Initialize visitor translations from backend
         window.visitorTranslations = {
             @foreach ($visitors as $visitor)
-                                            "{{ $visitor['id'] }}": {
+                                                                                                "{{ $visitor['id'] }}": {
                     "id": "{{ $master_visitor_category_translations->where('visitor_category_id', $visitor['id'])->where('language_code', 'id')->first()->name ?? $visitor['name'] }}",
                     "en": "{{ $master_visitor_category_translations->where('visitor_category_id', $visitor['id'])->where('language_code', 'en')->first()->name ?? $visitor['name'] }}"
                 }
-                                            {{ $loop->last ? '' : ',' }}
+                                                                                                {{ $loop->last ? '' : ',' }}
             @endforeach
         };
     </script>

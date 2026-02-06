@@ -17,8 +17,7 @@ class QMenu
             ->where('url', '!=', 'null')
             ->paginate($params->show_data ?? 15);
         return [
-            'items' => $data->collect()
-                ->forPage($data->currentPage(), $data->perPage())
+            'items' => collect($data->items())
                 ->transform(function ($item) {
                     return [
                         'id' => $item->id,

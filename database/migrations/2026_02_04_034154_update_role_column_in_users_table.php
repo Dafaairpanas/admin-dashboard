@@ -13,7 +13,9 @@ return new class extends Migration {
         Schema::table('users', function (Blueprint $table) {
             //
         });
-        \Illuminate\Support\Facades\DB::statement("ALTER TABLE users MODIFY COLUMN role VARCHAR(50) NULL");
+        if (Schema::hasColumn('users', 'role')) {
+            \Illuminate\Support\Facades\DB::statement("ALTER TABLE users MODIFY COLUMN role VARCHAR(50) NULL");
+        }
     }
 
     /**

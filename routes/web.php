@@ -106,4 +106,12 @@ Route::group(['middleware' => ['auth', 'role.uac']], function () {
         });
     });
 
+    // Dynamic Routes for Templates using RoutingController
+    // This allows accessing views directly, e.g. /pages/starter
+    Route::group(['prefix' => '/'], function () {
+        Route::get('{first}/{second}/{third}', [RoutingController::class, 'thirdLevel'])->name('third');
+        Route::get('{first}/{second}', [RoutingController::class, 'secondLevel'])->name('second');
+        Route::get('{any}', [RoutingController::class, 'root'])->name('root');
+    });
+
 });
