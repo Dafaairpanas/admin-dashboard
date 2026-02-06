@@ -13,7 +13,7 @@
                 <div class="">
                     <ol class="breadcrumb mb-0">
                         <li class="breadcrumb-item"><a href="#">Management</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('submissions.index') }}">Submissions</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('SUBMISSIONS.read') }}">Submissions</a></li>
                         <li class="breadcrumb-item active">Detail</li>
                     </ol>
                 </div>
@@ -259,10 +259,10 @@
 
                 {{-- Action Buttons --}}
                 <div class="text-center mt-4">
-                    <a href="{{ route('submissions.index') }}" class="btn btn-secondary btn-lg">
+                    <a href="{{ route('SUBMISSIONS.read') }}" class="btn btn-secondary btn-lg">
                         <i class="las la-arrow-left me-1"></i> Back to List
                     </a>
-                    <form action="{{ route('submissions.destroy', $submission->id) }}" 
+                    <form action="{{ route('SUBMISSIONS.delete', $submission->id) }}" 
                           method="POST" 
                           class="d-inline"
                           onsubmit="return confirm('Are you sure you want to delete this submission?')">

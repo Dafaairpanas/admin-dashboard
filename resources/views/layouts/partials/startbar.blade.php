@@ -1,7 +1,7 @@
 <div class="startbar d-print-none">
     <!--start brand-->
     <div class="brand">
-        <a href="{{ route('dashboard.index') }}" class="logo">
+        <a href="{{ url('/dashboard') }}" class="logo">
             <!-- Logo Small -->
             <span>
                 <img src="/images/logos/lang-logo/brolivinglogo.svg" alt="logo-small" class="logo-sm" height="30">
@@ -24,48 +24,48 @@
         <div class="startbar-collapse" id="startbarCollapse" data-simplebar>
             <div class="d-flex align-items-start flex-column w-100">
                 <!-- Navigation -->
-<ul class="navbar-nav mb-auto w-100">
+                <ul class="navbar-nav mb-auto w-100">
 
-@foreach ($menus as $menu)
+                    @foreach ($menus as $menu)
 
-    {{-- PARENT MENU → JADI LABEL --}}
-    @if ($menu->manyChild->isNotEmpty())
-        <li class="menu-label mt-2">
-            <span>{{ $menu->name }}</span>
-        </li>
+                        {{-- PARENT MENU → JADI LABEL --}}
+                        @if ($menu->manyChild->isNotEmpty())
+                            <li class="menu-label mt-2">
+                                <span>{{ $menu->name }}</span>
+                            </li>
 
-        @foreach ($menu->manyChild as $child)
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is(ltrim($child->url, '/').'*') ? 'active' : '' }}"
-                   href="{{ $child->url ? url($child->url) : '#' }}">
+                            @foreach ($menu->manyChild as $child)
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->is(ltrim($child->url, '/') . '*') ? 'active' : '' }}"
+                                        href="{{ $child->url ? url($child->url) : '#' }}">
 
-                    @if ($child->icon)
-                        <i class="{{ $child->icon }} menu-icon"></i>
-                    @endif
+                                        @if ($child->icon)
+                                            <i class="{{ $child->icon }} menu-icon"></i>
+                                        @endif
 
-                    <span>{{ $child->name }}</span>
-                </a>
-            </li>
-        @endforeach
+                                        <span>{{ $child->name }}</span>
+                                    </a>
+                                </li>
+                            @endforeach
 
-    {{-- MENU TANPA CHILD --}}
-    @else
-        <li class="nav-item">
-            <a class="nav-link {{ request()->is(ltrim($menu->url, '/').'*') ? 'active' : '' }}"
-               href="{{ $menu->url ? url($menu->url) : '#' }}">
+                            {{-- MENU TANPA CHILD --}}
+                        @else
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->is(ltrim($menu->url, '/') . '*') ? 'active' : '' }}"
+                                    href="{{ $menu->url ? url($menu->url) : '#' }}">
 
-                @if ($menu->icon)
-                    <i class="{{ $menu->icon }} menu-icon"></i>
-                @endif
+                                    @if ($menu->icon)
+                                        <i class="{{ $menu->icon }} menu-icon"></i>
+                                    @endif
 
-                <span>{{ $menu->name }}</span>
-            </a>
-        </li>
-    @endif
+                                    <span>{{ $menu->name }}</span>
+                                </a>
+                            </li>
+                        @endif
 
-@endforeach
+                    @endforeach
 
-</ul>
+                </ul>
 
             </div>
         </div><!--end startbar-collapse-->

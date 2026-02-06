@@ -28,14 +28,16 @@
                             <h4 class="card-title">Languages List</h4>
                         </div>
                         <div class="col-auto">
-                            <button class="btn bg-primary text-white" data-bs-toggle="modal"
-                                data-bs-target="#addLanguageModal">
-                                <i class="fas fa-plus me-1"></i> Add Language
-                            </button>
+                            @if(\App\Helper::hasPermission('LANGUAGES', 'create'))
+                                <button class="btn bg-primary text-white" data-bs-toggle="modal"
+                                    data-bs-target="#addLanguageModal">
+                                    <i class="fas fa-plus me-1"></i> Add Language
+                                </button>
+                            @endif
                         </div>
                     </div>
 
-                    <form action="{{ route('master.languages.index') }}" method="GET" class="mt-3">
+                    <form action="{{ route('LANGUAGES.read') }}" method="GET" class="mt-3">
                         <div class="input-group">
                             <input type="text" name="search_value" class="form-control"
                                 placeholder="Search by name or code..." value="{{ $search ?? '' }}">
@@ -105,22 +107,26 @@
                                             @endif
                                         </td>
                                         <td class="text-end">
-                                            <button class="btn btn-sm btn-soft-info btn-edit" data-bs-toggle="modal"
-                                                data-bs-target="#editLanguageModal" data-id="{{ $language->id }}"
-                                                data-code="{{ $language->code }}" data-name="{{ $language->name }}"
-                                                data-is_active="{{ $language->is_active }}"
-                                                data-is_default="{{ $language->is_default }}">
-                                                <i class="las la-pen fs-18"></i>
-                                            </button>
-
-                                            <form action="{{ route('master.languages.destroy', $language->id) }}" method="POST"
-                                                class="d-inline" onsubmit="return confirm('Are you sure?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-soft-danger" {{ $language->is_default ? 'disabled' : '' }}>
-                                                    <i class="las la-trash-alt fs-18"></i>
+                                            @if(\App\Helper::hasPermission('LANGUAGES', 'update'))
+                                                <button class="btn btn-sm btn-soft-info btn-edit" data-bs-toggle="modal"
+                                                    data-bs-target="#editLanguageModal" data-id="{{ $language->id }}"
+                                                    data-code="{{ $language->code }}" data-name="{{ $language->name }}"
+                                                    data-is_active="{{ $language->is_active }}"
+                                                    data-is_default="{{ $language->is_default }}">
+                                                    <i class="las la-pen fs-18"></i>
                                                 </button>
-                                            </form>
+                                            @endif
+
+                                            @if(\App\Helper::hasPermission('LANGUAGES', 'delete'))
+                                                <form action="{{ route('LANGUAGES.delete', $language->id) }}" method="POST"
+                                                    class="d-inline" onsubmit="return confirm('Are you sure?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-soft-danger" {{ $language->is_default ? 'disabled' : '' }}>
+                                                        <i class="las la-trash-alt fs-18"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty
@@ -144,7 +150,7 @@
     <!-- Add Language Modal -->
     <div class="modal fade" id="addLanguageModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
-            <form action="{{ route('master.languages.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('LANGUAGES.create.save') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">

@@ -37,31 +37,33 @@ class RoleController extends Controller
             $params = $request->all();
             $save = QRole::saveData($params);
 
-            return redirect()->route('manage.roles.index')->with('success', 'Role created successfully');
+            return redirect()->route('ROLES.read')->with('success', 'Role created successfully');
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
+    public function edit($id)
+    {
+        $role = QRole::getById($id);
+        $menus = QMenu::getAll((object) []);
+
+        return response()->json([
+            'role' => $role,
+            'menus' => $menus['items']
+        ]);
+    }
+
     public function update(Request $request, $id)
     {
-        $role = Role::findOrFail($id);
+        try {
+            $params = $request->all();
+            QRole::updateData($params, $id);
 
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|max:255|unique:roles,name,' . $id,
-            'badge_color' => 'nullable|string|max:50',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            return redirect()->route('ROLES.read')->with('success', 'Role updated successfully');
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', $th->getMessage())->withInput();
         }
-
-        $role->update([
-            'name' => $request->name,
-            'badge_color' => $request->badge_color ?? $role->badge_color,
-        ]);
-
-        return redirect()->route('manage.roles.index')->with('success', 'Role updated successfully');
     }
 
     public function destroy($id)
@@ -69,6 +71,6 @@ class RoleController extends Controller
         $role = Role::findOrFail($id);
         $role->delete();
 
-        return redirect()->route('manage.roles.index')->with('success', 'Role deleted successfully');
+        return redirect()->route('ROLES.read')->with('success', 'Role deleted successfully');
     }
 }

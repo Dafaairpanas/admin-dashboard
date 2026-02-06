@@ -107,7 +107,7 @@ class QuestionController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('master.questions.index')->with('success', 'Question created successfully');
+            return redirect()->route('QUESTIONS.read')->with('success', 'Question created successfully');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -201,7 +201,7 @@ class QuestionController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('master.questions.index')->with('success', 'Question updated successfully');
+            return redirect()->route('QUESTIONS.read')->with('success', 'Question updated successfully');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -213,6 +213,6 @@ class QuestionController extends Controller
     {
         $question = Question::findOrFail($id);
         $question->delete(); // Soft delete
-        return redirect()->route('master.questions.index')->with('success', 'Question deleted successfully');
+        return redirect()->route('QUESTIONS.read')->with('success', 'Question deleted successfully');
     }
 }

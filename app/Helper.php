@@ -6,35 +6,42 @@ use App\Models\Menu;
 use App\Models\RoleMenu;
 use Illuminate\Support\Facades\Auth;
 
-class Helper {
+class Helper
+{
   const PASS_DEFAULT = "Rajawali2025";
   const PERMISSION_ACCESS = [
     'create',
     'read',
     'update',
     'delete'
-];
+  ];
   const TRIGGER_ACTIVE_MENU_CHILD = 'child';
 
   public static function hasPermission($menuCode, $permission)
-    {
-        $user = Auth::user();
-        if (!$user) return false;
+  {
+    $user = Auth::user();
+    if (!$user)
+      return false;
 
-        // Ambil role_id user (dari relasi user_role)
-        $roleId = $user->refUserRole->role_id;
-        if (!$roleId) return false;
+    // Ambil role_id user (dari relasi user_role)
+    $roleUser = $user->refRoleUser;
+    if (!$roleUser)
+      return false;
 
-        // Cari menu berdasarkan code
-        $menu = Menu::where('code', $menuCode)->first();
-        if (!$menu) return false;
+    $roleId = $roleUser->role_id;
 
-        // Cari role_menu sesuai role dan menu
-        $roleMenu = RoleMenu::where('role_id', $roleId)
-            ->where('menu_id', $menu->id)
-            ->first();
+    // Cari menu berdasarkan code
+    $menu = Menu::where('code', $menuCode)->first();
+    if (!$menu)
+      return false;
 
-        if (!$roleMenu) return false;
-        return (bool) $roleMenu->{$permission};
+    // Cari role_menu sesuai role dan menu
+    $roleMenu = RoleMenu::where('role_id', $roleId)
+      ->where('menu_id', $menu->id)
+      ->first();
+
+    if (!$roleMenu)
+      return false;
+    return (bool) $roleMenu->{$permission};
   }
 }

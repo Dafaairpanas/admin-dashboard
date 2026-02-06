@@ -10,7 +10,7 @@ class Menu extends Model
 {
     use HasFactory, SoftDeletes;
     protected $table = 'menus';
-    protected  $fillable = [
+    protected $fillable = [
         'name',
         'url',
         'icon',
@@ -21,7 +21,7 @@ class Menu extends Model
 
     public function parent()
     {
-        return $this->belongsTo(Menu::class, 'parent_id', 'id')->where('parent_id', 0)->with('parent');
+        return $this->belongsTo(Menu::class, 'parent_id', 'id')->with('parent');
     }
     public function manyChild()
     {

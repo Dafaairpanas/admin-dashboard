@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 class QRole
 {
+
     public static function getAllData($params)
     {
         $data = Model::where(function ($query) use ($params) {
@@ -16,11 +17,12 @@ class QRole
                 $query->where('name', 'like', '%' . $params->search_value . '%');
             }
         })
+
             ->whereNull('deleted_at')
             ->orderBy('name', 'asc')
             ->paginate($params->show_data ?? 15);
         return [
-            'items' => $data->getCollection()
+            'items' => collect($data->items())
                 ->transform(function ($item) {
                     return [
                         'id' => $item->id,
@@ -64,6 +66,28 @@ class QRole
                 })
         ];
     }
+
+    public static function getById($id)
+    {
+        $role = Model::with('refRoleMenu')->findOrFail($id);
+
+        return [
+            'id' => $role->id,
+            'name' => $role->name,
+            'badge_color' => $role->badge_color,
+            'permissions' => $role->refRoleMenu->mapWithKeys(function ($item) {
+                return [
+                    $item->menu_id => [
+                        'create' => $item->create,
+                        'read' => $item->read,
+                        'update' => $item->update,
+                        'delete' => $item->delete
+                    ],
+                ];
+            })
+        ];
+    }
+
     public static function saveData($params)
     {
         DB::beginTransaction();

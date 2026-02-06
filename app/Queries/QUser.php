@@ -13,7 +13,7 @@ class QUser
 {
     public static function getAllData($params)
     {
-        $data = Model::where(function ($query) use ($params) {
+        $data = Model::with(['refRoleUser.refRole'])->where(function ($query) use ($params) {
             if ($params->search_value) {
                 $query->where('name', 'like', '%' . $params->search_value . '%');
             }
@@ -27,9 +27,14 @@ class QUser
         return [
             'items' => $data->getCollection()
                 ->transform(function ($item) {
-                    $roleName = $item->refRole ? $item->refRole->name : ($item->role ?? 'No Role');
-                    $badgeColor = $item->refRole ? $item->refRole->badge_color : '#6c757d';
+                    // Ambil role dari relasi refRoleUser -> refRole
+                    $roleUser = $item->refRoleUser;
+                    $role = $roleUser ? $roleUser->refRole : null;
 
+                    $roleName = $role ? $role->name : 'No Role';
+                    $badgeColor = $role ? $role->badge_color : '#6c757d';
+                    $roleId = $role ? $role->id : null; // Tambahkan role_id untuk modal edit
+        
                     // Map Bootstrap classes to Hex codes for style attribute
                     $colors = [
                         'success' => '#198754', // Green
@@ -44,19 +49,10 @@ class QUser
                         $badgeColor = $colors[$badgeColor];
                     }
 
-                    // Fallback badge colors for legacy roles
-                    if (!$item->refRole && $item->role) {
-                        $badgeColor = match (strtolower($item->role)) {
-                            'admin' => $colors['info'],
-                            'superadmin' => $colors['success'],
-                            'manager' => $colors['warning'],
-                            default => $colors['secondary'],
-                        };
-                    }
-
                     return [
                         'id' => $item->id,
                         'name' => $item->name,
+                        'role_id' => $roleId, // Penting untuk modal edit
                         'role_name' => $roleName,
                         'role_badge' => $badgeColor,
                         'email' => $item->email,
@@ -93,12 +89,9 @@ class QUser
             if ($keys) {
                 throw new \Exception("Email sudah terdaftar.");
             }
-            $roleObj = \App\Models\Role::find($params['role_id']);
-
             $insert = new Model;
             $insert->name = $params['name'];
             $insert->email = $params['email'];
-            $insert->role = $roleObj ? $roleObj->name : 'user'; // Sync legacy column
             $insert->password = isset($params['password']) ? Hash::make($params['password']) : Hash::make(AppHelper::PASS_DEFAULT);
             $insert->created_at = Carbon::now();
             $insert->updated_at = null;
@@ -147,21 +140,15 @@ class QUser
                 $update->password = Hash::make($params['password']);
             }
 
-            // Sync legacy column if role is updated
-            if (!empty($params['role_id'])) {
-                $roleObj = \App\Models\Role::find($params['role_id']);
-                if ($roleObj) {
-                    $update->role = $roleObj->name;
-                }
-            }
-
             $update->updated_at = Carbon::now();
             $update->save();
 
             if (!empty($params['role_id'])) {
-                $update->refRoleUser()->updateOrCreate([
+                // Fix: Delete existing roles first to prevent duplication
+                $update->refRoleUser()->delete();
+
+                $update->refRoleUser()->create([
                     'role_id' => $params['role_id'],
-                ], [
                     'created_at' => Carbon::now(),
                     'updated_at' => null,
                 ]);

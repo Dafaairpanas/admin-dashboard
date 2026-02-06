@@ -29,7 +29,7 @@
                         </div>
                     </div>
 
-                    <form action="{{ route('submissions.index') }}" method="GET" class="mt-3">
+                    <form action="{{ route('SUBMISSIONS.read') }}" method="GET" class="mt-3">
                         <div class="input-group">
                             <input type="text" name="search_value" class="form-control"
                                 placeholder="Search by name, email, phone..." value="{{ $search ?? '' }}">
@@ -78,11 +78,11 @@
                                         <td>{{ $submission['company_name'] ?? '-' }}</td>
                                         <td>{{ $submission['created_at'] }}</td>
                                         <td>
-                                            <a href="{{ route('submissions.show', $submission['id']) }}"
+                                            <a href="{{ route('SUBMISSIONS.read', ['id' => $submission['id']]) }}"
                                                 class="btn btn-sm btn-soft-primary" title="View Details">
                                                 <i class="las la-eye"></i>
                                             </a>
-                                            <form action="{{ route('submissions.destroy', $submission['id']) }}" method="POST"
+                                            <form action="{{ route('SUBMISSIONS.delete', $submission['id']) }}" method="POST"
                                                 class="d-inline delete-form">
                                                 @csrf
                                                 @method('DELETE')
@@ -105,7 +105,8 @@
 
                     <div class="mt-3">
                         @if($attributes['total'] > 0)
-                            <p class="mb-0">Showing {{ $attributes['from'] }} to {{ $attributes['total'] }} of {{ $attributes['total'] }} entries</p>
+                            <p class="mb-0">Showing {{ $attributes['from'] }} to {{ $attributes['total'] }} of
+                                {{ $attributes['total'] }} entries</p>
                         @endif
                     </div>
                 </div>

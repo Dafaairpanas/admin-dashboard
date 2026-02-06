@@ -20,7 +20,12 @@ require __DIR__ . '/auth.php';
 Route::get('/', [FormController::class, 'index'])->name('form.index');
 Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
 Route::post('/form/submit', [FormController::class, 'submit'])->name('form.submit');
-Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
+
+// Permission denied route
+Route::get('/permission-denied', function () {
+    return view('errors.permission-denied');
+})->name('permission.denied');
+
 Route::post('/switch-language', function (\Illuminate\Http\Request $request) {
     $lang = $request->input('lang', 'en');
 
@@ -46,46 +51,56 @@ Route::post('/switch-language', function (\Illuminate\Http\Request $request) {
     ]);
 })->name('switch.language');
 
-Route::group(['middleware' => 'auth'], function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+Route::group(['middleware' => ['auth', 'role.uac']], function () {
+    // Dashboard - code: DASHBOARDS
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('DASHBOARDS.read');
+
+    // Submissions - code: SUBMISSIONS
     Route::prefix('submissions')->group(function () {
-        Route::get('/', [AdminSubmissionController::class, 'index'])->name('submissions.index');
-        Route::get('/{id}/show', [AdminSubmissionController::class, 'show'])->name('submissions.show');
-        Route::delete('/{id}/destroy', [AdminSubmissionController::class, 'destroy'])->name('submissions.destroy');
+        Route::get('/', [AdminSubmissionController::class, 'index'])->name('SUBMISSIONS.read');
+        Route::get('/{id}/show', [AdminSubmissionController::class, 'show'])->name('SUBMISSIONS.read');
+        Route::delete('/{id}/destroy', [AdminSubmissionController::class, 'destroy'])->name('SUBMISSIONS.delete');
     });
 
-    Route::prefix('manage')->name('manage.')->group(function () {
+    // Management - Users & Roles
+    Route::prefix('manage')->group(function () {
+        // Users - code: USERS
         Route::prefix('users')->group(function () {
-            Route::get('/', [UserController::class, 'index'])->name('users.index');
-            Route::post('/store', [UserController::class, 'store'])->name('users.store');
-            Route::put('/{user}/update', [UserController::class, 'update'])->name('users.update');
-            Route::delete('/{user}/destroy', [UserController::class, 'destroy'])->name('users.destroy');
+            Route::get('/', [UserController::class, 'index'])->name('USERS.read');
+            Route::post('/store', [UserController::class, 'store'])->name('USERS.create');
+            Route::put('/{user}/update', [UserController::class, 'update'])->name('USERS.update');
+            Route::delete('/{user}/destroy', [UserController::class, 'destroy'])->name('USERS.delete');
         });
+        // Roles - code: ROLES
         Route::prefix('roles')->group(function () {
-            Route::get('/', [RoleController::class, 'index'])->name('roles.index');
-            Route::post('/store', [RoleController::class, 'store'])->name('roles.store');
-            Route::post('/{id}/update', [RoleController::class, 'update'])->name('roles.update');
-            Route::delete('/{id}/destroy', [RoleController::class, 'destroy'])->name('roles.destroy');
+            Route::get('/', [RoleController::class, 'index'])->name('ROLES.read');
+            Route::get('/{id}/edit', [RoleController::class, 'edit'])->name('ROLES.update');
+            Route::post('/store', [RoleController::class, 'store'])->name('ROLES.create');
+            Route::post('/{id}/update', [RoleController::class, 'update'])->name('ROLES.update.submit');
+            Route::delete('/{id}/destroy', [RoleController::class, 'destroy'])->name('ROLES.delete');
         });
     });
 
-    Route::prefix('master')->name('master.')->group(function () {
+    // Master - Languages & Questions
+    Route::prefix('master')->group(function () {
+        // Languages - code: LANGUAGES
         Route::prefix('languages')->group(function () {
-            Route::get('/', [LanguageController::class, 'index'])->name('languages.index');
-            Route::get('/create', [LanguageController::class, 'create'])->name('languages.create');
-            Route::post('/store', [LanguageController::class, 'store'])->name('languages.store');
-            Route::get('/{id}/edit', [LanguageController::class, 'edit'])->name('languages.edit');
-            Route::post('/{id}/update', [LanguageController::class, 'update'])->name('languages.update');
-            Route::delete('/{id}/destroy', [LanguageController::class, 'destroy'])->name('languages.destroy');
+            Route::get('/', [LanguageController::class, 'index'])->name('LANGUAGES.read');
+            Route::get('/create', [LanguageController::class, 'create'])->name('LANGUAGES.create.form');
+            Route::post('/store', [LanguageController::class, 'store'])->name('LANGUAGES.create.save');
+            Route::get('/{id}/edit', [LanguageController::class, 'edit'])->name('LANGUAGES.update.form');
+            Route::post('/{id}/update', [LanguageController::class, 'update'])->name('LANGUAGES.update.save');
+            Route::delete('/{id}/destroy', [LanguageController::class, 'destroy'])->name('LANGUAGES.delete');
         });
 
+        // Questions - code: QUESTIONS
         Route::prefix('questions')->group(function () {
-            Route::get('/', [QuestionController::class, 'index'])->name('questions.index');
-            Route::get('/create', [QuestionController::class, 'create'])->name('questions.create');
-            Route::post('/store', [QuestionController::class, 'store'])->name('questions.store');
-            Route::get('/{id}/edit', [QuestionController::class, 'edit'])->name('questions.edit');
-            Route::post('/{id}/update', [QuestionController::class, 'update'])->name('questions.update');
-            Route::delete('/{id}/destroy', [QuestionController::class, 'destroy'])->name('questions.destroy');
+            Route::get('/', [QuestionController::class, 'index'])->name('QUESTIONS.read');
+            Route::get('/create', [QuestionController::class, 'create'])->name('QUESTIONS.create.form');
+            Route::post('/store', [QuestionController::class, 'store'])->name('QUESTIONS.create.save');
+            Route::get('/{id}/edit', [QuestionController::class, 'edit'])->name('QUESTIONS.update.form');
+            Route::post('/{id}/update', [QuestionController::class, 'update'])->name('QUESTIONS.update.save');
+            Route::delete('/{id}/destroy', [QuestionController::class, 'destroy'])->name('QUESTIONS.delete');
         });
     });
 

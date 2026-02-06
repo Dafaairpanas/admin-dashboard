@@ -61,7 +61,7 @@ class LanguageController extends Controller
             'is_active' => $request->has('is_active') ? 1 : 0,
         ]);
 
-        return redirect()->route('master.languages.index')->with('success', 'Language created successfully');
+        return redirect()->route('LANGUAGES.read')->with('success', 'Language created successfully');
     }
 
     public function update(Request $request, $id)
@@ -106,7 +106,7 @@ class LanguageController extends Controller
             'is_active' => $request->has('is_active') ? 1 : 0,
         ]);
 
-        return redirect()->route('master.languages.index')->with('success', 'Language updated successfully');
+        return redirect()->route('LANGUAGES.read')->with('success', 'Language updated successfully');
     }
 
     public function destroy($id)
@@ -119,6 +119,6 @@ class LanguageController extends Controller
 
         $language->delete();
 
-        return redirect()->route('master.languages.index')->with('success', 'Language deleted successfully');
+        return redirect()->route('LANGUAGES.read')->with('success', 'Language deleted successfully');
     }
 }

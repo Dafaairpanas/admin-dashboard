@@ -28,13 +28,15 @@
                             <h4 class="card-title">Questions List</h4>
                         </div>
                         <div class="col-auto">
-                            <a href="{{ route('master.questions.create') }}" class="btn bg-primary text-white">
-                                <i class="fas fa-plus me-1"></i> Add Question
-                            </a>
+                            @if(\App\Helper::hasPermission('QUESTIONS', 'create'))
+                                <a href="{{ route('QUESTIONS.create.form') }}" class="btn bg-primary text-white">
+                                    <i class="fas fa-plus me-1"></i> Add Question
+                                </a>
+                            @endif
                         </div>
                     </div>
 
-                    <form action="{{ route('master.questions.index') }}" method="GET" class="mt-3">
+                    <form action="{{ route('QUESTIONS.read') }}" method="GET" class="mt-3">
                         <div class="input-group">
                             <input type="text" name="search_value" class="form-control" placeholder="Search..."
                                 value="{{ $search ?? '' }}">
@@ -100,18 +102,23 @@
                                             @endif
                                         </td>
                                         <td class="text-end">
-                                            <a href="{{ route('master.questions.edit', $q->id) }}" class="btn btn-sm btn-soft-info">
-                                                <i class="las la-pen fs-18"></i>
-                                            </a>
+                                            @if(\App\Helper::hasPermission('QUESTIONS', 'update'))
+                                                <a href="{{ route('QUESTIONS.update.form', $q->id) }}"
+                                                    class="btn btn-sm btn-soft-info">
+                                                    <i class="las la-pen fs-18"></i>
+                                                </a>
+                                            @endif
 
-                                            <form action="{{ route('master.questions.destroy', $q->id) }}" method="POST"
-                                                class="d-inline" onsubmit="return confirm('Are you sure?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-soft-danger">
-                                                    <i class="las la-trash-alt fs-18"></i>
-                                                </button>
-                                            </form>
+                                            @if(\App\Helper::hasPermission('QUESTIONS', 'delete'))
+                                                <form action="{{ route('QUESTIONS.delete', $q->id) }}" method="POST"
+                                                    class="d-inline" onsubmit="return confirm('Are you sure?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-soft-danger">
+                                                        <i class="las la-trash-alt fs-18"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty

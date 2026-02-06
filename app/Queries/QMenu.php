@@ -38,10 +38,13 @@ class QMenu
 
     public static function getAll($params)
     {
-        $data = Model::whereNotNull('url')
-            ->where('url', '!=', 'null')
+        // Menu clickable adalah yang memiliki parent_id (child dari label sidebar)
+        // Menu label (header) tidak punya parent_id
+        $data = Model::withoutGlobalScopes()
+            ->whereNotNull('parent_id')
             ->orderBy('urutan', 'asc')
             ->get();
+        // Data sudah benar: hanya menu dengan parent_id yang diambil
         return [
             'items' => $data->map(function ($item) {
                 return [
