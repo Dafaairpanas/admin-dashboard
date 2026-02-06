@@ -65,7 +65,7 @@
                                     <th>Company</th>
                                     <th>Submitted At</th>
                                     @if (\App\Helper::hasPermission('SUBMISSIONS', 'update') || \App\Helper::hasPermission('SUBMISSIONS', 'delete'))
-                                    <th>Actions</th>
+                                    <th class="text-center">Actions</th>
                                     @endif
                                 </tr>
                             </thead>
@@ -80,7 +80,7 @@
                                         <td>{{ $submission['company_name'] ?? '-' }}</td>
                                         <td>{{ $submission['created_at'] }}</td>
                                         @if (\App\Helper::hasPermission('SUBMISSIONS', 'update') || \App\Helper::hasPermission('SUBMISSIONS', 'delete'))
-                                        <td>
+                                        <td class="text-center text-nowrap">
                                             @if (\App\Helper::hasPermission('SUBMISSIONS', 'update'))
                                                 <a href="{{ route('SUBMISSIONS.update', ['id' => $submission['id']]) }}"
                                                     class="btn btn-sm btn-soft-primary" title="View Details">

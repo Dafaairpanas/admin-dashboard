@@ -209,7 +209,7 @@
                     <div class="footer-icon location">
                         <i class="fas fa-map-marker-alt"></i>
                     </div>
-                    <span class="footer-text">Jl. Raya Juwana - Pati, Area Sawah, Mintomulyo, Kec. Pati, Kabupaten Pati,
+                    <span class="footer-text text-center">Jl. Raya Juwana - Pati, Area Sawah, Mintomulyo, Kec. Pati, Kabupaten Pati,
                         Jawa Tengah 59185</span>
                 </a>
             </div>
